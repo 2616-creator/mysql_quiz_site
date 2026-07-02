@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Madang MySQL 연습 사이트</title>
+  <link rel="stylesheet" href="style.css?v=202607021735" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Madang MySQL 기본문법 연습 사이트</h1>
+      <p>빈칸 채워넣기, 구문 작성하기, 실행결과 맞추기를 시험 형식으로 연습할 수 있습니다.</p>
+    </div>
+    <div class="header-actions">
+      <button id="quizViewBtn" class="ghost">문제 풀기</button>
+      <button id="conceptViewBtn" class="ghost">개념 보기</button>
+      <button id="schemaBtn" class="ghost">테이블 보기</button>
+      <button id="resetBtn" class="danger">초기화</button>
+    </div>
+  </header>
+
+  <main id="quizView" class="layout">
+    <aside class="sidebar">
+      <div class="card">
+        <h2>진도</h2>
+        <div class="progress-wrap"><div id="progressBar"></div></div>
+        <p id="progressText">0 / 300</p>
+        <div class="jump-row">
+          <input id="jumpInput" type="number" min="1" max="100" placeholder="유형 내 번호" />
+          <button id="jumpBtn">이동</button>
+        </div>
+        <p class="jump-help">현재 유형 안에서 원하는 문제 번호로 이동할 수 있습니다.</p>
+      </div>
+      <div class="card">
+        <h2>유형 이동</h2>
+        <button class="level" data-jump="0">빈칸 채워넣기 100문제</button>
+        <button class="level" data-jump="100">구문 작성하기 100문제</button>
+        <button class="level" data-jump="200">실행결과 맞추기 100문제</button>
+        <p class="jump-help">각 유형은 쉬운 문제부터 어려운 문제까지 단계적으로 구성되어 있습니다.</p>
+      </div>
+      <div class="card">
+        <h2>난이도 이동</h2>
+        <button class="level" data-offset="0">1~10. 기초</button>
+        <button class="level" data-offset="30">31~40. 중급 시작</button>
+        <button class="level" data-offset="50">51~60. 활용 시작</button>
+        <button class="level" data-offset="70">71~80. 어려움</button>
+        <button class="level" data-offset="90">91~100. 최종 종합</button>
+      </div>
+      <div class="card small">
+        <h2>풀이 방식</h2>
+        <p>빈칸형, 구문작성형, 실행결과형이 각각 100문제입니다.<br>답을 입력한 뒤 <b>Enter</b>를 누르면 바로 채점됩니다.</p>
+        <button id="sideConceptBtn" class="level">개념 보기로 이동</button>
+      </div>
+    </aside>
+
+    <section id="schemaPanel" class="schema-panel hidden">
+      <div class="schema-panel-head">
+        <div>
+          <h2>사용 테이블</h2>
+          <p>Book, Orders, Customer 테이블을 보면서 문제를 풀 수 있습니다.</p>
+        </div>
+        <button id="closeSchemaPanel" class="ghost">테이블 닫기</button>
+      </div>
+      <div id="schemaPanelBody" class="schema-panel-body"></div>
+    </section>
+
+    <section class="quiz-card">
+      <div class="meta">
+        <span id="numBadge">1 / 100</span>
+        <span id="levelBadge">기초</span>
+      </div>
+      <h2 id="questionTitle" class="hidden"></h2>
+      <p id="questionText"></p>
+      <pre id="templateBox" class="template"></pre>
+      <textarea id="answerInput" placeholder="여기에 답을 입력하세요"></textarea>
+      <div class="actions">
+        <button id="prevBtn" class="ghost">이전</button>
+        <button id="hintBtn" class="ghost">힌트</button>
+        <button id="nextBtn">다음</button>
+        <button id="showBtn" class="ghost">정답/이유 보기</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <button id="retryBtn" class="ghost hidden">다시풀기</button>
+      <div id="hintBox" class="hint hidden"></div>
+      <div id="answerBox" class="answer hidden"></div>
+    </section>
+  </main>
+
+  <main id="conceptView" class="concept-page hidden">
+    <section class="concept-hero">
+      <div>
+        <h2>MySQL 핵심 개념 정리</h2>
+        <p>문제를 풀기 전에 자주 헷갈리는 문법을 여기서 따로 확인하세요.</p>
+      </div>
+      <button id="backToQuizBtn">문제 풀러가기</button>
+    </section>
+
+    <section class="concept-markdown">
+      <article class="concept-card wide markdown-body">
+        <h3>MYSQL</h3>
+        <h2>📊 SQL 핵심 명령어 및 문법 요약</h2>
+        <p>아래 내용은 시험에 자주 나오는 SQL 문법을 <b>기능 설명 + 예시문</b> 형태로 정리한 것입니다.</p>
+
+        <table class="concept-table">
+          <thead>
+            <tr><th>명령어 / 키워드</th><th>기능 설명</th><th>문법 및 활용 예시</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>SELECT</code></td>
+              <td>조회할 열이나 계산식을 지정하는 가장 기본 명령어</td>
+              <td><pre>SELECT bookname, price FROM Book;
+SELECT * FROM Customer;</pre></td>
+            </tr>
+            <tr>
+              <td><code>FROM</code></td>
+              <td>데이터를 가져올 테이블을 지정</td>
+              <td><pre>SELECT *
+FROM Book;</pre></td>
+            </tr>
+            <tr>
+              <td><code>*</code></td>
+              <td>테이블의 모든 열을 조회할 때 사용</td>
+              <td><pre>SELECT * FROM Orders;</pre></td>
+            </tr>
+            <tr>
+              <td>컬럼명</td>
+              <td>필요한 열만 골라 조회. 예: <code>bookname</code>, <code>price</code>, <code>name</code>, <code>orderdate</code></td>
+              <td><pre>SELECT bookname FROM Book;
+SELECT name FROM Customer;
+SELECT saleprice FROM Orders;</pre></td>
+            </tr>
+            <tr>
+              <td>문자열/날짜 값</td>
+              <td>문자와 날짜는 작은따옴표로 감싸서 조건에 사용</td>
+              <td><pre>WHERE publisher = '굿스포츠'
+WHERE orderdate = '2020-07-03'</pre></td>
+            </tr>
+            <tr>
+              <td>비교 연산자</td>
+              <td><code>=</code>, <code>!=</code>, <code>&lt;&gt;</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>&lt;</code>, <code>&lt;=</code>로 값을 비교</td>
+              <td><pre>WHERE price &gt;= 10000;
+WHERE saleprice &lt; 10000;
+WHERE phone != '5678';</pre></td>
+            </tr>
+            <tr>
+              <td><code>AND</code></td>
+              <td>여러 조건을 모두 만족하는 행만 선택</td>
+              <td><pre>WHERE publisher = '굿스포츠'
+  AND price &gt;= 7000;</pre></td>
+            </tr>
+            <tr>
+              <td><code>BETWEEN A AND B</code></td>
+              <td>A 이상 B 이하의 범위에 포함되는 값을 검색</td>
+              <td><pre>WHERE price BETWEEN 10000 AND 20000;
+WHERE saleprice BETWEEN 7000 AND 13000;</pre></td>
+            </tr>
+            <tr>
+              <td><code>IS NULL</code></td>
+              <td>값이 비어 있는 행을 찾음. NULL은 <code>= NULL</code>로 비교하지 않음</td>
+              <td><pre>WHERE phone IS NULL;</pre></td>
+            </tr>
+            <tr>
+              <td><code>IS NOT NULL</code></td>
+              <td>NULL이 아닌 값이 들어 있는 행을 찾음</td>
+              <td><pre>WHERE phone IS NOT NULL;</pre></td>
+            </tr>
+            <tr>
+              <td><code>COUNT(*)</code></td>
+              <td>전체 행의 개수를 셈</td>
+              <td><pre>SELECT COUNT(*) FROM Book;</pre></td>
+            </tr>
+            <tr>
+              <td><code>SUM()</code></td>
+              <td>숫자 열의 합계를 구함</td>
+              <td><pre>SELECT SUM(saleprice) FROM Orders;</pre></td>
+            </tr>
+            <tr>
+              <td><code>AVG()</code></td>
+              <td>숫자 열의 평균을 구함</td>
+              <td><pre>SELECT AVG(price) FROM Book;</pre></td>
+            </tr>
+            <tr>
+              <td><code>MIN()</code></td>
+              <td>가장 작은 값 또는 가장 이른 날짜를 구함</td>
+              <td><pre>SELECT MIN(price) FROM Book;
+SELECT MIN(orderdate) FROM Orders;</pre></td>
+            </tr>
+            <tr>
+              <td><code>MAX()</code></td>
+              <td>가장 큰 값 또는 가장 최근 날짜를 구함</td>
+              <td><pre>SELECT MAX(price) FROM Book;
+SELECT MAX(orderdate) FROM Orders;</pre></td>
+            </tr>
+            <tr>
+              <td><code>LIMIT</code></td>
+              <td>조회 결과에서 앞의 N개만 출력. 정렬과 함께 상위/하위 1개 찾기에 자주 사용</td>
+              <td><pre>SELECT * FROM Book
+ORDER BY price DESC
+LIMIT 1;</pre></td>
+            </tr>
+            <tr>
+              <td><code>JOIN</code> / <code>INNER JOIN</code></td>
+              <td>두 테이블에서 연결 조건이 서로 맞는 행만 합쳐 조회. MySQL에서 <code>JOIN</code>은 보통 <code>INNER JOIN</code>과 같은 의미</td>
+              <td><pre>FROM Customer JOIN Orders
+ON Customer.custid = Orders.custid;</pre></td>
+            </tr>
+            <tr>
+              <td>계산식</td>
+              <td>열끼리 더하기, 빼기 등 계산한 결과를 조회하거나 조건에 사용</td>
+              <td><pre>SELECT Book.price - Orders.saleprice AS discount
+FROM Book JOIN Orders
+ON Book.bookid = Orders.bookid;</pre></td>
+            </tr>
+            <tr>
+              <td>서브쿼리 <code>(SELECT ...)</code></td>
+              <td>쿼리 안에 들어가는 또 다른 조회문. 평균, 최고값 등과 비교할 때 사용</td>
+              <td><pre>WHERE price &gt; (SELECT AVG(price) FROM Book);</pre></td>
+            </tr>
+            <tr>
+              <td><code>DISTINCT</code></td>
+              <td>조회 결과에서 중복된 행을 제거하고 고유한 값만 출력</td>
+              <td><pre>SELECT DISTINCT publisher FROM Book;</pre></td>
+            </tr>
+            <tr>
+              <td><code>COUNT(DISTINCT ...)</code></td>
+              <td>중복을 제거한 데이터의 <b>순수한 종류 개수</b>를 구함</td>
+              <td><pre>SELECT COUNT(DISTINCT custid) FROM Orders;</pre></td>
+            </tr>
+            <tr>
+              <td><code>WHERE</code></td>
+              <td>테이블의 개별 행(Row)에 조건을 걸어 그룹화하기 전에 필터링</td>
+              <td><pre>WHERE custid &gt;= 3;
+WHERE phone != '5678';</pre></td>
+            </tr>
+            <tr>
+              <td><code>GROUP BY</code></td>
+              <td>특정 열의 값이 같은 데이터들을 하나의 그룹으로 묶음</td>
+              <td><pre>SELECT custid, COUNT(*)
+FROM Orders
+GROUP BY custid;</pre></td>
+            </tr>
+            <tr>
+              <td><code>HAVING</code></td>
+              <td><code>GROUP BY</code>로 그룹화된 결과, 즉 통계값에 조건을 걸어 필터링</td>
+              <td><pre>SELECT custid, COUNT(*)
+FROM Orders
+GROUP BY custid
+HAVING COUNT(*) &gt;= 3;</pre></td>
+            </tr>
+            <tr>
+              <td><code>LIKE</code></td>
+              <td>와일드카드 기호 <code>_</code>, <code>%</code>를 사용하여 문자열 패턴 검색</td>
+              <td><pre>WHERE name LIKE '_대%';
+-- 두 번째 글자가 '대'
+
+WHERE bookname LIKE '%축구%';
+-- '축구' 포함</pre></td>
+            </tr>
+            <tr>
+              <td><code>NOT LIKE</code></td>
+              <td>특정 문자열 패턴과 일치하지 않는 행을 선택</td>
+              <td><pre>WHERE bookname NOT LIKE '%축구%';</pre></td>
+            </tr>
+            <tr>
+              <td><code>OR</code></td>
+              <td>나열된 조건 중 하나라도 만족하면 데이터를 선택</td>
+              <td><pre>WHERE publisher = '굿스포츠'
+   OR publisher = '대한미디어';</pre></td>
+            </tr>
+            <tr>
+              <td><code>IN</code></td>
+              <td>여러 값 목록 중 하나와 일치하는 데이터를 선택. OR 조건을 짧게 쓸 때 자주 사용</td>
+              <td><pre>SELECT * FROM Book
+WHERE publisher IN ('굿스포츠', '대한미디어');
+
+-- 아래 OR 조건과 비슷한 의미
+WHERE publisher = '굿스포츠'
+   OR publisher = '대한미디어';</pre></td>
+            </tr>
+            <tr>
+              <td><code>NOT IN</code></td>
+              <td>목록이나 서브쿼리 결과에 포함되지 않는 행을 선택</td>
+              <td><pre>SELECT * FROM Book
+WHERE bookid NOT IN (SELECT bookid FROM Orders);</pre></td>
+            </tr>
+            <tr>
+              <td><code>ON</code></td>
+              <td>JOIN할 때 두 테이블을 어떤 컬럼 기준으로 연결할지 지정하는 조건</td>
+              <td><pre>FROM Customer JOIN Orders
+ON Customer.custid = Orders.custid;
+
+FROM Book JOIN Orders
+ON Book.bookid = Orders.bookid;</pre></td>
+            </tr>
+            <tr>
+              <td><code>ORDER BY</code></td>
+              <td>데이터를 특정 열 기준으로 정렬. 보통 쿼리문의 가장 마지막에 위치</td>
+              <td><pre>ORDER BY price ASC;
+ORDER BY orderdate DESC;</pre></td>
+            </tr>
+            <tr>
+              <td><code>DESC</code></td>
+              <td>내림차순 정렬. 큰 값에서 작은 값 순서</td>
+              <td><pre>ORDER BY orderid DESC;
+-- 10 → 1</pre></td>
+            </tr>
+            <tr>
+              <td><code>ASC</code></td>
+              <td>오름차순 정렬. 작은 값에서 큰 값 순서. 기본값이라 생략 가능</td>
+              <td><pre>ORDER BY orderid ASC;
+-- 1 → 10</pre></td>
+            </tr>
+            <tr>
+              <td>복수 정렬 <code>,</code></td>
+              <td>1순위 정렬 값이 같을 때 쉼표 뒤의 2순위 기준으로 재정렬</td>
+              <td><pre>ORDER BY orderdate DESC, saleprice ASC;</pre></td>
+            </tr>
+            <tr>
+              <td><code>LEFT OUTER JOIN</code></td>
+              <td>왼쪽 테이블을 기준으로 합침. 오른쪽에 짝이 없어도 왼쪽 데이터는 다 살림</td>
+              <td><pre>FROM Book LEFT OUTER JOIN Orders
+ON Book.bookid = Orders.bookid;</pre></td>
+            </tr>
+            <tr>
+              <td><code>RIGHT OUTER JOIN</code></td>
+              <td>오른쪽 테이블을 기준으로 합침. 왼쪽에 짝이 없어도 오른쪽 데이터는 다 살림</td>
+              <td><pre>FROM Book RIGHT OUTER JOIN Orders
+ON Book.bookid = Orders.bookid;</pre></td>
+            </tr>
+            <tr>
+              <td><code>UNION</code></td>
+              <td>두 개의 조회 결과를 위아래로 합치는 합집합. 중복 데이터는 자동 제거</td>
+              <td><pre>SELECT name FROM Customer
+UNION
+SELECT name FROM NewCustomer;</pre></td>
+            </tr>
+            <tr>
+              <td><code>INTERSECT</code></td>
+              <td>두 개의 조회 결과에서 공통으로 존재하는 데이터만 뽑는 교집합</td>
+              <td><pre>SELECT name FROM CustomerA
+INTERSECT
+SELECT name FROM CustomerB;</pre></td>
+            </tr>
+            <tr>
+              <td><code>AS</code></td>
+              <td>열 이름이나 테이블 이름에 별명(Alias)을 붙여 일시적으로 바꿔줌</td>
+              <td><pre>SELECT name AS 고객이름 FROM Customer;
+SELECT SUM(saleprice) AS 총액 FROM Orders;</pre></td>
+            </tr>
+            <tr>
+              <td><code>EXISTS</code></td>
+              <td>서브쿼리의 조건을 만족하는 데이터가 하나라도 존재하는지 참/거짓 확인</td>
+              <td><pre>SELECT * FROM Customer
+WHERE EXISTS (
+  SELECT * FROM Orders
+  WHERE Orders.custid = Customer.custid
+);</pre></td>
+            </tr>
+            <tr>
+              <td><code>NOT EXISTS</code></td>
+              <td>서브쿼리 조건을 만족하는 데이터가 하나도 없는 행을 선택</td>
+              <td><pre>SELECT * FROM Customer
+WHERE NOT EXISTS (
+  SELECT * FROM Orders
+  WHERE Orders.custid = Customer.custid
+);</pre></td>
+            </tr>
+          </tbody>
+        </table>
+      </article>
+
+      <article class="concept-card wide markdown-body warning-card">
+        <h2>⚠️ 핵심 주의사항 — 시험 단골 출제</h2>
+
+        <h3>1. WHERE vs HAVING 실행 순서</h3>
+        <p>컴퓨터는 <b>WHERE로 개별 데이터를 먼저 거른 뒤</b>, <b>GROUP BY로 묶고</b>, 마지막에 <b>HAVING으로 그룹 결과를 검사</b>합니다.</p>
+        <pre>SELECT custid, COUNT(*)
+FROM Orders
+WHERE saleprice &gt;= 10000
+GROUP BY custid
+HAVING COUNT(*) &gt;= 2;</pre>
+        <ul>
+          <li><code>WHERE</code>: 개별 행 조건</li>
+          <li><code>HAVING</code>: <code>COUNT</code>, <code>SUM</code>, <code>AVG</code> 같은 집계 결과 조건</li>
+          <li><b>주의:</b> <code>WHERE COUNT(*) &gt;= 2</code>처럼 쓰면 안 됩니다.</li>
+        </ul>
+
+        <h3>2. NULL 비교 연산</h3>
+        <p><code>NULL</code>은 값이 없다는 뜻이라 <code>=</code>, <code>!=</code>, <code>&lt;&gt;</code>로 정확히 비교할 수 없습니다.</p>
+        <pre>-- 올바른 NULL 비교
+WHERE phone IS NULL
+WHERE phone IS NOT NULL</pre>
+        <p><code>!=</code>이나 <code>&lt;&gt;</code>로 데이터를 거를 때, 값이 <code>NULL</code>인 행은 비교 대상에서 제외될 수 있습니다. NULL까지 포함하려면 다음처럼 씁니다.</p>
+        <pre>WHERE phone != '5678' OR phone IS NULL;</pre>
+
+        <h3>3. LIKE 와일드카드 구분</h3>
+        <ul>
+          <li><code>_</code>: 정확히 1글자 자리</li>
+          <li><code>%</code>: 글자 수 제한 없음</li>
+        </ul>
+        <pre>WHERE name LIKE '_대%';
+-- 두 번째 글자가 '대'
+
+WHERE name LIKE '__대%';
+-- 세 번째 글자가 '대'
+
+WHERE bookname LIKE '%축구%';
+-- 앞뒤 글자 수 상관없이 '축구' 포함</pre>
+      </article>
+
+      <article class="concept-card wide markdown-body">
+        <h2>🧾 Markdown식 빠른 암기 노트</h2>
+        <pre># SQL 실행 순서 기억하기
+FROM / JOIN
+→ WHERE
+→ GROUP BY
+→ HAVING
+→ SELECT
+→ ORDER BY
+→ LIMIT
+
+# WHERE vs HAVING
+- WHERE: 그룹 전, 개별 행 조건
+- HAVING: 그룹 후, 집계 결과 조건
+
+# LIKE
+- '박%'   : 박으로 시작
+- '%축구%' : 축구 포함
+- '_대%'  : 두 번째 글자가 대
+
+# IN / ON
+- IN : 여러 값 중 하나인지 확인
+  WHERE publisher IN ('굿스포츠', '대한미디어')
+- ON : JOIN 연결 조건
+  ON Customer.custid = Orders.custid
+
+# OUTER JOIN
+- LEFT OUTER JOIN  : 왼쪽 테이블은 전부 살림
+- RIGHT OUTER JOIN : 오른쪽 테이블은 전부 살림
+
+# 집계 함수
+- COUNT(*) : 행 개수
+- SUM(열)  : 합계
+- AVG(열)  : 평균
+- MIN(열)  : 최솟값
+- MAX(열)  : 최댓값
+
+# 범위 / 제한 / 제외
+- BETWEEN A AND B : A 이상 B 이하
+- LIMIT 1         : 결과 1개만 보기
+- NOT LIKE        : 패턴 제외
+- NOT IN          : 목록/서브쿼리에 없는 값
+- NOT EXISTS      : 관련 데이터가 없는 경우
+
+# JOIN과 서브쿼리
+- JOIN 또는 INNER JOIN : 양쪽에 연결되는 데이터만 합침
+- 서브쿼리: WHERE price > (SELECT AVG(price) FROM Book)
+- 계산식: Book.price - Orders.saleprice AS discount</pre>
+      </article>
+    </section>
+  </main>
+
+  <dialog id="schemaDialog">
+    <div class="dialog-head">
+      <h2>사용 테이블</h2>
+      <button id="closeSchema" class="ghost">닫기</button>
+    </div>
+    <div class="schema-grid">
+      <div>
+        <h3>Book</h3>
+        <table><tr><th>bookid</th><th>bookname</th><th>publisher</th><th>price</th></tr><tr><td>1</td><td>축구의 역사</td><td>굿스포츠</td><td>7000</td></tr><tr><td>2</td><td>축구 아는 여자</td><td>나무수</td><td>13000</td></tr><tr><td>3</td><td>축구의 이해</td><td>대한미디어</td><td>22000</td></tr><tr><td>4</td><td>골프 바이블</td><td>대한미디어</td><td>35000</td></tr><tr><td>5</td><td>피겨 교본</td><td>굿스포츠</td><td>8000</td></tr><tr><td>6</td><td>역도 단계별기술</td><td>굿스포츠</td><td>6000</td></tr><tr><td>7</td><td>야구의 추억</td><td>이상미디어</td><td>20000</td></tr><tr><td>8</td><td>야구를 부탁해</td><td>이상미디어</td><td>13000</td></tr><tr><td>9</td><td>올림픽 이야기</td><td>삼성당</td><td>7500</td></tr><tr><td>10</td><td>Olympic Champions</td><td>Pearson</td><td>13000</td></tr></table>
+      </div>
+      <div>
+        <h3>Orders</h3>
+        <table><tr><th>orderid</th><th>custid</th><th>bookid</th><th>saleprice</th><th>orderdate</th></tr><tr><td>1</td><td>1</td><td>1</td><td>6000</td><td>2020-07-01</td></tr><tr><td>2</td><td>1</td><td>3</td><td>21000</td><td>2020-07-03</td></tr><tr><td>3</td><td>2</td><td>5</td><td>8000</td><td>2020-07-03</td></tr><tr><td>4</td><td>3</td><td>6</td><td>6000</td><td>2020-07-04</td></tr><tr><td>5</td><td>4</td><td>7</td><td>20000</td><td>2020-07-05</td></tr><tr><td>6</td><td>1</td><td>2</td><td>12000</td><td>2020-07-07</td></tr><tr><td>7</td><td>4</td><td>8</td><td>13000</td><td>2020-07-07</td></tr><tr><td>8</td><td>3</td><td>10</td><td>12000</td><td>2020-07-08</td></tr><tr><td>9</td><td>2</td><td>10</td><td>7000</td><td>2020-07-09</td></tr><tr><td>10</td><td>3</td><td>8</td><td>13000</td><td>2020-07-10</td></tr></table>
+      </div>
+      <div>
+        <h3>Customer</h3>
+        <table><tr><th>custid</th><th>name</th><th>address</th><th>phone</th></tr><tr><td>1</td><td>박지성</td><td>영국 맨체스터</td><td>000-5000-0001</td></tr><tr><td>2</td><td>김연아</td><td>대한민국 서울</td><td>000-6000-0001</td></tr><tr><td>3</td><td>장미란</td><td>대한민국 강원도</td><td>000-7000-0001</td></tr><tr><td>4</td><td>추신수</td><td>미국 클리블랜드</td><td>000-8000-0001</td></tr><tr><td>5</td><td>박세리</td><td>대한민국 대전</td><td>NULL</td></tr></table>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="script.js?v=202607021905"></script>
+</body>
+</html>
