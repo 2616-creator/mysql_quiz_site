@@ -199,7 +199,7 @@ function buildResult100(){
   add('3유형 실행결과 맞추기 11~30 조건','판매가 내림차순 첫 주문번호','SELECT orderid FROM Orders ORDER BY saleprice DESC LIMIT 1;',2,'ORDER BY LIMIT');
   add('3유형 실행결과 맞추기 11~30 조건','전화번호 없는 고객','SELECT name FROM Customer WHERE phone IS NULL;','박세리','NULL 조건');
   add('3유형 실행결과 맞추기 11~30 조건','판매가 10000 미만 주문 수','SELECT COUNT(*) FROM Orders WHERE saleprice < 10000;',4,'COUNT(*)는 중복을 제거하지 않고 조건에 맞는 행을 모두 셉니다. 6000, 8000, 6000, 7000 총 4건입니다.');
-  add('3유형 실행결과 맞추기 11~30 조건','출판사 오름차순 첫 값','SELECT publisher FROM Book ORDER BY publisher ASC LIMIT 1;','Pearson','문자 정렬은 DB의 collation(정렬 규칙)에 따라 달라질 수 있습니다. ASCII/기본 바이너리식 정렬이면 Pearson이 먼저 나오고, 한글 가나다식 정렬로 보면 굿스포츠가 먼저 나올 수 있어 둘 다 정답 처리합니다.',['굿스포츠']);
+  add('3유형 실행결과 맞추기 11~30 조건','출판사 오름차순 첫 값','SELECT publisher FROM Book ORDER BY publisher ASC LIMIT 1;','굿스포츠','ASC는 오름차순입니다. 한글 가나다 기준으로 보면 굿스포츠가 먼저입니다. 단, DB의 문자 정렬 규칙이 영문을 먼저 두는 경우 Pearson도 나올 수 있어 함께 정답 처리합니다.',['Pearson']);
 
   // 31~50: 중급 - GROUP BY/HAVING, 단순 JOIN
   const mid=[
@@ -228,7 +228,7 @@ function buildResult100(){
     ['최고 매출 고객',"SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid GROUP BY Customer.custid, Customer.name ORDER BY SUM(Orders.saleprice) DESC LIMIT 1;",'박지성','GROUP ORDER LIMIT'],
     ['축구 주문 고객',"SELECT DISTINCT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid JOIN Book ON Orders.bookid=Book.bookid WHERE Book.bookname LIKE '%축구%';",'박지성','LIKE JOIN'],
     ['야구 주문 고객',"SELECT DISTINCT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid JOIN Book ON Orders.bookid=Book.bookid WHERE Book.bookname LIKE '%야구%';",'추신수, 장미란','LIKE JOIN'],
-    ['출판사별 주문 고객 종류',"SELECT Book.publisher, COUNT(DISTINCT Orders.custid) FROM Book JOIN Orders ON Book.bookid=Orders.bookid GROUP BY Book.publisher ORDER BY Book.publisher ASC;",'Pearson 2, 굿스포츠 3, 나무수 1, 대한미디어 1, 이상미디어 2','DISTINCT GROUP']
+    ['출판사별 주문 고객 종류',"SELECT Book.publisher, COUNT(DISTINCT Orders.custid) FROM Book JOIN Orders ON Book.bookid=Orders.bookid GROUP BY Book.publisher ORDER BY Book.publisher ASC;",'굿스포츠 3, 나무수 1, 대한미디어 1, 이상미디어 2, Pearson 2','ASC 기준 출판사명 오름차순입니다. 한글 가나다 기준 답을 기본으로 표시하고, DB 정렬 규칙상 영문 Pearson이 먼저 오는 경우도 정답 처리합니다.',['Pearson 2, 굿스포츠 3, 나무수 1, 대한미디어 1, 이상미디어 2']]
   ];
   hard.forEach(x=>add('3유형 실행결과 맞추기 51~70 어려움',...x));
   hard.forEach(x=>add('3유형 실행결과 맞추기 51~70 어려움',`${x[0]} 응용`,x[1],x[2],x[3]));
