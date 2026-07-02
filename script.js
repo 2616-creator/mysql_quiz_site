@@ -414,6 +414,27 @@ function getExplanation(q){
   return `정답 SQL:\n${ans}`;
 }
 function currentTypeStart(){ return Math.floor(current / 100) * 100; }
+function resultHeader(sql){
+  const m = (sql || '').match(/select\s+([\s\S]*?)\s+from/i);
+  if(!m) return '[결과]';
+  const cols = m[1].split(',').map(x=>x.trim()).filter(Boolean);
+  if(cols.length === 1) return `[${cols[0]}]`;
+  return `[${cols.join('] [')}]`;
+}
+function formatQuestionText(q){
+  const type=q[0], text=q[2];
+  if(type.includes('실행결과')) return `<SQL 구문>의 <실행 결과>를 작성하시오.\n(단, 아래 형식에 맞게 작성하시오.)`;
+  if(type.includes('구문 작성')) return `<SQL 질의>에 따른 <SQL 구문>에 알맞은 코드를 작성하시오.\n\n<SQL 질의>\n${text}`;
+  if(type.includes('빈칸')) return `<SQL 구문>의 빈칸에 알맞은 코드를 작성하시오.\n\n${text}`;
+  return text;
+}
+function formatTemplate(q){
+  const type=q[0], sql=q[3];
+  if(type.includes('실행결과')) return `<SQL 구문>\n${sql}\n\n<실행결과>\n${resultHeader(sql)}`;
+  if(type.includes('구문 작성')) return `<SQL 구문>\n직접 작성하세요.`;
+  if(type.includes('빈칸')) return `<SQL 구문>\n${sql}`;
+  return sql || 'SQL 전체를 직접 작성하세요.';
+}
 function render(){
   const q = questions[current];
   const typeStart = currentTypeStart();
@@ -421,8 +442,8 @@ function render(){
   $('numBadge').textContent = `${localNum} / 100`;
   $('levelBadge').textContent = q[0];
   $('questionTitle').textContent = q[1];
-  $('questionText').textContent = q[2];
-  $('templateBox').textContent = q[3] || 'SQL 전체를 직접 작성하세요.';
+  $('questionText').textContent = formatQuestionText(q);
+  $('templateBox').textContent = formatTemplate(q);
   $('answerInput').value = saved[current] || '';
   $('feedback').className='feedback'; $('feedback').textContent='';
   $('retryBtn').classList.add('hidden');
