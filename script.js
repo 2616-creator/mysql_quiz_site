@@ -47,33 +47,79 @@ const orderIds = rows => list(rows.map(o=>o.orderid));
 function buildFillBlank100(){
   const push=(stage,title,text,template,answer,hint)=>questions.push([stage,title,text,template,String(answer),hint]);
   const items=[];
-  const add=(title,text,template,answer,hint,stage='1유형 빈칸 채워넣기')=>items.push([stage,`${items.length+1}. ${title}`,text,template,answer,hint]);
-  ['bookname','publisher','price','name','phone','orderdate'].forEach(col=>add(`${col} 조회`,`SELECT 뒤에 들어갈 컬럼명을 쓰세요.`,`SELECT ____ FROM ${['name','phone'].includes(col)?'Customer':col==='orderdate'?'Orders':'Book'};`,col,'SELECT 뒤에는 조회할 컬럼명이 옵니다.'));
-  add('전체 조회','모든 컬럼을 조회하는 기호를 쓰세요.','SELECT ____ FROM Book;','*','*는 전체 컬럼입니다.');
-  add('중복 제거','중복 출판사를 제거하는 키워드를 쓰세요.','SELECT ____ publisher FROM Book;','DISTINCT','DISTINCT는 중복 제거입니다.');
-  ['WHERE','ORDER BY','GROUP BY','HAVING'].forEach(k=>add(`${k} 절`,`${k}가 필요한 위치를 채우세요.`,k==='WHERE'?'SELECT * FROM Book ____ price >= 10000;':k==='ORDER BY'?'SELECT * FROM Book ____ price DESC;':k==='GROUP BY'?'SELECT custid, COUNT(*) FROM Orders ____ custid;':'SELECT custid, COUNT(*) FROM Orders GROUP BY custid ____ COUNT(*) >= 2;',k,`${k} 절의 위치를 익힙니다.`));
-  ['%축구%','박%','_구%','%픽','O%'].forEach(p=>add(`LIKE ${p}`,`LIKE 패턴을 따옴표까지 포함해 쓰세요.`,`SELECT * FROM Book WHERE bookname LIKE ____;`,`'${p}'`,'%는 여러 글자, _는 한 글자입니다.'));
-  [['굿스포츠','publisher'],['대한미디어','publisher'],['박지성','name'],['김연아','name']].forEach(([v,c])=>add(`${v} 문자값`,`문자 조건의 오른쪽 값을 채우세요.`,`SELECT * FROM ${c==='name'?'Customer':'Book'} WHERE ${c} = ____;`,`'${v}'`,'문자열은 따옴표로 감쌉니다.'));
-  ['BETWEEN','IN','IS','NOT','AND','OR','DESC','ASC','LIMIT','AS'].forEach(k=>add(`${k} 키워드`,`빈칸에 알맞은 SQL 키워드를 쓰세요.`,k==='BETWEEN'?'WHERE price ____ 10000 AND 20000':k==='IN'?"WHERE publisher ____ ('굿스포츠', '대한미디어')":k==='IS'?'WHERE phone ____ NULL':k==='NOT'?'WHERE phone IS ____ NULL':k==='AND'?"WHERE publisher = '굿스포츠' ____ price >= 7000":k==='OR'?"WHERE publisher = '나무수' ____ publisher = '삼성당'":k==='DESC'?'ORDER BY price ____':k==='ASC'?'ORDER BY price ____':k==='LIMIT'?'ORDER BY price DESC ____ 1':'SELECT bookname ____ 도서명 FROM Book;',k,'자주 쓰는 핵심 키워드입니다.'));
-  ['COUNT','SUM','AVG','MIN','MAX'].forEach(fn=>add(`${fn} 함수`,`집계 함수 이름을 채우세요.`,`SELECT ____(saleprice) FROM Orders;`,fn,'집계 함수는 여러 행을 하나의 값으로 계산합니다.'));
-  [['Customer.custid = Orders.custid','Customer와 Orders'],['Book.bookid = Orders.bookid','Book과 Orders']].forEach(([cond,txt])=>add(`${txt} 조인 조건`,`${txt}의 ON 조건을 채우세요.`,`FROM ${txt.split('와 ')[0]} JOIN Orders ON ____`,cond,'ON에는 연결 컬럼 비교식을 씁니다.'));
-  ['JOIN','INNER JOIN','LEFT OUTER JOIN','RIGHT OUTER JOIN','ON'].forEach(k=>add(`${k} 조인`,`조인 관련 빈칸을 채우세요.`,k==='ON'?'FROM Customer JOIN Orders ____ Customer.custid = Orders.custid':`FROM Customer ____ Orders ON Customer.custid = Orders.custid`,k,'JOIN과 OUTER JOIN의 방향을 구분합니다.'));
-  ['EXISTS','NOT EXISTS'].forEach(k=>add(`${k} 서브쿼리`,`존재 여부 조건을 완성하세요.`,k==='EXISTS'?'WHERE ____ (SELECT * FROM Orders WHERE Orders.custid = Customer.custid)':'WHERE ____ (SELECT * FROM Orders WHERE Orders.custid = Customer.custid)',k,'EXISTS는 존재, NOT EXISTS는 부재를 검사합니다.'));
-  ['SELECT','FROM','WHERE','GROUP BY','HAVING','ORDER BY'].forEach((k,i)=>add(`실행 순서 ${k}`,`SQL 작성에 필요한 절 키워드를 채우세요.`,i<2?`${k==='SELECT'?'____':'SELECT * ____'} Book;`:`SELECT * FROM Orders ${k==='WHERE'?'____ saleprice >= 10000':k==='GROUP BY'?'____ custid':k==='HAVING'?'GROUP BY custid ____ COUNT(*)>=2':'____ saleprice DESC'};`,k,'절의 역할과 위치를 함께 익힙니다.'));
-  // 고난도 빈칸: 50번 이후는 여러 절 중 핵심 한 칸
+  const add=(title,text,template,answer,hint)=>items.push(['1유형 빈칸 채워넣기',`${items.length+1}. ${title}`,text,template,answer,hint]);
+
+  // 1~10 쉬움: 문맥으로 컬럼/값을 정확히 추론
+  add('도서명 열','도서의 이름 목록만 조회하려고 합니다. 빈칸에 알맞은 열 이름을 쓰세요.','SELECT ____ FROM Book;','bookname','Book에서 도서 이름 열은 bookname입니다.');
+  add('가격 열','도서의 가격만 조회하려고 합니다. 빈칸에 알맞은 열 이름을 쓰세요.','SELECT ____ FROM Book;','price','Book에서 가격 열은 price입니다.');
+  add('고객 이름 열','고객의 이름만 조회하려고 합니다. 빈칸에 알맞은 열 이름을 쓰세요.','SELECT ____ FROM Customer;','name','Customer에서 고객 이름 열은 name입니다.');
+  add('주문일자 열','주문 날짜만 조회하려고 합니다. 빈칸에 알맞은 열 이름을 쓰세요.','SELECT ____ FROM Orders;','orderdate','Orders에서 주문 날짜 열은 orderdate입니다.');
+  add('모든 열','Book 테이블의 모든 열을 조회하려고 합니다. 빈칸을 채우세요.','SELECT ____ FROM Book;','*','모든 열은 *입니다.');
+  add('도서번호 값','bookid가 3인 도서를 찾으려고 합니다. 빈칸에 숫자를 쓰세요.','SELECT * FROM Book WHERE bookid = ____;','3','조건에서 요구한 값은 3입니다.');
+  add('고객번호 값','custid가 2인 고객을 찾으려고 합니다. 빈칸에 숫자를 쓰세요.','SELECT * FROM Customer WHERE custid = ____;','2','조건에서 요구한 값은 2입니다.');
+  add('문자열 값','출판사가 굿스포츠인 도서를 찾으려고 합니다. 따옴표까지 포함해 쓰세요.','SELECT * FROM Book WHERE publisher = ____;','\'굿스포츠\'','문자열은 따옴표로 감쌉니다.');
+  add('날짜 값','2020-07-03 주문만 찾으려고 합니다. 따옴표까지 포함해 쓰세요.','SELECT * FROM Orders WHERE orderdate = ____;','\'2020-07-03\'','날짜도 문자열처럼 따옴표로 씁니다.');
+  add('별칭 이름','도서명을 화면에 도서명이라는 이름으로 보이게 하려 합니다. 별칭만 쓰세요.','SELECT bookname AS ____ FROM Book;','도서명','AS 뒤에는 결과 컬럼 별칭이 옵니다.');
+
+  // 11~30 조건/LIKE: 답이 문제문에 그대로 노출되지 않게 구성
+  add('조건절 키워드','가격이 10000원 이상인 행만 남기려면 SELECT와 조건식 사이에 어떤 절이 필요할까요?','SELECT * FROM Book ____ price >= 10000;','WHERE','행을 필터링하는 절은 WHERE입니다.');
+  add('비교 연산자','가격이 20000원 이상이라는 조건이 되도록 비교 연산자를 쓰세요.','SELECT * FROM Book WHERE price ____ 20000;','>=','이상은 >= 입니다.');
+  add('작다 연산자','판매가격이 10000원 미만이라는 조건이 되도록 비교 연산자를 쓰세요.','SELECT * FROM Orders WHERE saleprice ____ 10000;','<','미만은 < 입니다.');
+  add('포함 패턴','도서명 어디에든 축구가 들어가게 LIKE 패턴을 따옴표까지 포함해 쓰세요.','SELECT * FROM Book WHERE bookname LIKE ____;','\'%축구%\'','포함 검색은 앞뒤에 %를 붙입니다.');
+  add('시작 패턴','고객명이 박으로 시작하게 LIKE 패턴을 따옴표까지 포함해 쓰세요.','SELECT * FROM Customer WHERE name LIKE ____;','\'박%\'','시작 검색은 뒤에 %를 붙입니다.');
+  add('한 글자 패턴','두 번째 글자가 구인 도서를 찾는 LIKE 패턴을 따옴표까지 포함해 쓰세요.','SELECT * FROM Book WHERE bookname LIKE ____;','\'_구%\'','_는 정확히 한 글자입니다.');
+  add('범위 시작값','가격이 10000원 이상 20000원 이하가 되도록 첫 번째 값을 쓰세요.','SELECT * FROM Book WHERE price BETWEEN ____ AND 20000;','10000','BETWEEN의 첫 값은 하한입니다.');
+  add('범위 끝값','판매가격이 7000원 이상 13000원 이하가 되도록 두 번째 값을 쓰세요.','SELECT * FROM Orders WHERE saleprice BETWEEN 7000 AND ____;','13000','BETWEEN의 두 번째 값은 상한입니다.');
+  add('목록 두 번째 값','출판사가 굿스포츠 또는 대한미디어인 조건입니다. 두 번째 문자열 값을 따옴표까지 포함해 쓰세요.',"SELECT * FROM Book WHERE publisher IN ('굿스포츠', ____);",'\'대한미디어\'','IN 목록의 두 번째 값입니다.');
+  add('NULL 조건 완성','전화번호가 없는 고객만 찾도록 NULL 앞의 비교 방식을 완성하세요.','SELECT * FROM Customer WHERE phone ____ NULL;','IS','NULL은 IS NULL로 비교합니다.');
+  add('NULL 아님','전화번호가 있는 고객만 찾도록 빈칸을 채우세요.','SELECT * FROM Customer WHERE phone IS ____ NULL;','NOT','NULL이 아닌 값은 IS NOT NULL입니다.');
+  add('조건 연결','굿스포츠 출판사이면서 가격이 7000원 이상인 조건이 되도록 연결어를 쓰세요.',"WHERE publisher = '굿스포츠' ____ price >= 7000",'AND','두 조건을 모두 만족해야 하므로 AND입니다.');
+  add('둘 중 하나','출판사가 나무수 또는 삼성당인 조건이 되도록 연결어를 쓰세요.',"WHERE publisher = '나무수' ____ publisher = '삼성당'",'OR','둘 중 하나면 OR입니다.');
+  add('제외 패턴','도서명에 축구가 포함되지 않도록 LIKE 앞에 들어갈 키워드를 쓰세요.',"SELECT * FROM Book WHERE bookname ____ LIKE '%축구%';",'NOT','패턴 제외는 NOT LIKE입니다.');
+  add('중복 제거 위치','출판사 종류만 보려고 합니다. SELECT 뒤에 들어갈 키워드를 쓰세요.','SELECT ____ publisher FROM Book;','DISTINCT','중복 제거는 DISTINCT입니다.');
+  add('중복 없는 개수','주문한 고객번호 종류 수를 세려고 합니다. COUNT 안의 빈칸을 채우세요.','SELECT COUNT(____ custid) FROM Orders;','DISTINCT','COUNT(DISTINCT 컬럼)입니다.');
+  add('내림차순','비싼 도서부터 정렬되도록 방향 키워드를 쓰세요.','SELECT * FROM Book ORDER BY price ____;','DESC','큰 값부터는 DESC입니다.');
+  add('오름차순','오래된 주문일부터 정렬되도록 방향 키워드를 쓰세요.','SELECT * FROM Orders ORDER BY orderdate ____;','ASC','작은 값부터는 ASC입니다.');
+  add('상위 개수','가장 비싼 도서 1권만 보려고 합니다. 마지막 숫자를 쓰세요.','SELECT * FROM Book ORDER BY price DESC LIMIT ____;','1','1개만 제한합니다.');
+  add('정렬 기준 열','주문을 판매가격 기준으로 내림차순 정렬합니다. 기준 열 이름을 쓰세요.','SELECT * FROM Orders ORDER BY ____ DESC;','saleprice','판매가격 열은 saleprice입니다.');
+
+  // 31~50 집계/GROUP BY/JOIN 기초
+  add('행 개수 함수','Book의 행 수를 세려면 COUNT 안에 무엇을 넣을까요?','SELECT COUNT(____) FROM Book;','*','COUNT(*)는 전체 행 수입니다.');
+  add('합계 함수','전체 판매금액 합계를 구하는 함수 이름을 쓰세요.','SELECT ____(saleprice) FROM Orders;','SUM','합계는 SUM입니다.');
+  add('평균 함수','도서 가격 평균을 구하는 함수 이름을 쓰세요.','SELECT ____(price) FROM Book;','AVG','평균은 AVG입니다.');
+  add('최솟값 함수','가장 낮은 판매가격을 구하는 함수 이름을 쓰세요.','SELECT ____(saleprice) FROM Orders;','MIN','최솟값은 MIN입니다.');
+  add('최댓값 함수','가장 비싼 도서 가격을 구하는 함수 이름을 쓰세요.','SELECT ____(price) FROM Book;','MAX','최댓값은 MAX입니다.');
+  add('묶을 열','고객별 주문 수를 구하려고 합니다. GROUP BY 뒤에 들어갈 열 이름을 쓰세요.','SELECT custid, COUNT(*) FROM Orders GROUP BY ____;','custid','고객별이므로 custid로 묶습니다.');
+  add('집계 조건','주문 수가 2개 이상인 고객 그룹만 남기려면 GROUP BY 뒤에 어떤 절을 써야 할까요?','SELECT custid, COUNT(*) FROM Orders GROUP BY custid ____ COUNT(*) >= 2;','HAVING','집계 결과 조건은 HAVING입니다.');
+  add('총액 조건 함수','고객별 총액이 30000 이상인 조건입니다. 함수 이름을 채우세요.','SELECT custid, SUM(saleprice) FROM Orders GROUP BY custid HAVING ____(saleprice) >= 30000;','SUM','총액 조건이므로 SUM입니다.');
+  add('조인 연결 키워드','Customer와 Orders를 custid로 연결할 때 조건 앞에 쓰는 키워드를 쓰세요.','FROM Customer JOIN Orders ____ Customer.custid = Orders.custid','ON','JOIN 조건은 ON 뒤에 씁니다.');
+  add('고객 주문 연결식','Customer와 Orders를 연결하는 비교식을 쓰세요.','FROM Customer JOIN Orders ON ____','Customer.custid = Orders.custid','두 테이블의 custid를 비교합니다.');
+  add('도서 주문 연결식','Book과 Orders를 연결하는 비교식을 쓰세요.','FROM Book JOIN Orders ON ____','Book.bookid = Orders.bookid','두 테이블의 bookid를 비교합니다.');
+  add('왼쪽 보존 조인','주문 없는 고객도 포함하려면 Customer를 왼쪽에 두고 어떤 조인을 써야 할까요?','FROM Customer ____ Orders ON Customer.custid = Orders.custid','LEFT OUTER JOIN','왼쪽 테이블을 모두 살립니다.');
+  add('오른쪽 보존 조인','오른쪽 Orders를 모두 살리는 조인 키워드를 쓰세요.','FROM Customer ____ Orders ON Customer.custid = Orders.custid','RIGHT OUTER JOIN','오른쪽 테이블을 모두 살립니다.');
+  add('없는 행 찾기','LEFT OUTER JOIN 후 주문 없는 고객을 찾기 위한 조건의 오른쪽 값을 쓰세요.','WHERE Orders.orderid IS ____','NULL','짝이 없으면 오른쪽 값이 NULL입니다.');
+  add('별칭 키워드','총액 컬럼에 total이라는 별칭을 붙이려 합니다. 빈칸을 채우세요.','SELECT SUM(saleprice) ____ total FROM Orders;','AS','별칭은 AS입니다.');
+  add('서브쿼리 비교값','전체 평균 판매가격보다 큰 주문을 찾습니다. 괄호 안 함수 이름을 쓰세요.','WHERE saleprice > (SELECT ____(saleprice) FROM Orders)','AVG','평균과 비교합니다.');
+  add('존재 확인','주문 내역이 있는 고객을 찾는 서브쿼리 조건 키워드를 쓰세요.','WHERE ____ (SELECT * FROM Orders WHERE Orders.custid = Customer.custid)','EXISTS','존재 여부 확인은 EXISTS입니다.');
+  add('부재 확인','주문 내역이 없는 고객을 찾는 서브쿼리 조건 키워드를 쓰세요.','WHERE ____ (SELECT * FROM Orders WHERE Orders.custid = Customer.custid)','NOT EXISTS','없음을 확인하려면 NOT EXISTS입니다.');
+  add('계산식 열','할인액을 정가-판매가로 계산합니다. 빈칸에 판매가격 열을 쓰세요.','SELECT Book.price - Orders.____ AS discount FROM Book JOIN Orders ON Book.bookid = Orders.bookid;','saleprice','판매가격 열은 saleprice입니다.');
+  add('복수 정렬 구분','주문일자 내림차순 후 판매가격 오름차순으로 정렬할 때 두 기준 사이에 들어갈 기호는?','ORDER BY orderdate DESC ____ saleprice ASC',',','복수 정렬 기준은 쉼표로 구분합니다.');
+
+  // 51~100 활용 빈칸: 문맥 속 핵심 하나만 묻기
   const advanced=[
-    ['조인 후 조건','SELECT Customer.name FROM Customer JOIN Orders ____ Customer.custid = Orders.custid WHERE Orders.saleprice >= 10000;','ON'],
-    ['LEFT 없는 행','SELECT Customer.* FROM Customer LEFT OUTER JOIN Orders ON Customer.custid=Orders.custid WHERE Orders.orderid ____ NULL;','IS'],
-    ['RIGHT OUTER','SELECT Book.bookname FROM Book ____ Orders ON Book.bookid=Orders.bookid;','RIGHT OUTER JOIN'],
-    ['집계 조건','SELECT custid, SUM(saleprice) FROM Orders GROUP BY custid ____ SUM(saleprice)>=30000;','HAVING'],
-    ['서브쿼리 평균','SELECT * FROM Orders WHERE saleprice > (SELECT ____(saleprice) FROM Orders);','AVG'],
-    ['별칭 정렬','SELECT custid, SUM(saleprice) ____ total FROM Orders GROUP BY custid ORDER BY total DESC;','AS'],
-    ['중복 고객','SELECT COUNT(____ custid) FROM Orders;','DISTINCT'],
-    ['패턴 제외','SELECT * FROM Book WHERE bookname ____ LIKE \'%축구%\';','NOT'],
-    ['목록 포함','SELECT * FROM Book WHERE publisher ____ (\'굿스포츠\',\'나무수\');','IN'],
-    ['상위 1개','SELECT * FROM Book ORDER BY price DESC ____ 1;','LIMIT']
+    ['JOIN 필터','박지성이 주문한 도서명을 찾습니다. 고객명 열을 쓰세요.',"WHERE Customer.____ = '박지성'",'name'],
+    ['JOIN 필터2','축구 도서를 주문한 고객을 찾습니다. 도서명 열을 쓰세요.',"WHERE Book.____ LIKE '%축구%'",'bookname'],
+    ['집계 정렬','고객별 총액을 total로 정렬합니다. ORDER BY 뒤 별칭을 쓰세요.','SELECT custid, SUM(saleprice) AS total FROM Orders GROUP BY custid ORDER BY ____ DESC;','total'],
+    ['HAVING 기준','주문 3개 이상 고객을 찾습니다. COUNT 안을 채우세요.','HAVING COUNT(____) >= 3','*'],
+    ['OUTER NULL','주문 없는 도서를 찾습니다. NULL이 되는 Orders의 기본키 열을 쓰세요.','WHERE Orders.____ IS NULL','orderid'],
+    ['서브쿼리 열','주문된 적 없는 도서를 찾습니다. 비교할 도서번호 열을 쓰세요.','WHERE Orders.____ = Book.bookid','bookid'],
+    ['IN 목록','굿스포츠와 대한미디어 중 하나인 도서를 찾습니다. 두 번째 값을 쓰세요.',"publisher IN ('굿스포츠', ____)",'\'대한미디어\''],
+    ['LIKE 한글자','세 번째 글자가 대인 이름 패턴을 쓰세요.',"name LIKE ____",'\'__대%\''],
+    ['계산 조건','할인액이 1000 이상입니다. Book.price에서 뺄 Orders 열을 쓰세요.','WHERE Book.price - Orders.____ >= 1000','saleprice'],
+    ['최종 제한','총액 1등 고객만 보려고 합니다. 마지막 키워드와 숫자를 쓰세요.','ORDER BY total DESC ____','LIMIT 1']
   ];
-  while(items.length<100){ const a=advanced[items.length%advanced.length]; add(`${a[0]} ${items.length+1}`,'여러 절이 섞인 SQL에서 빈칸을 채우세요.',a[1],a[2],'후반부 빈칸은 조인/집계/서브쿼리 속 핵심 문법입니다.'); }
+  while(items.length<100){ const a=advanced[items.length%advanced.length]; add(`${a[0]} ${items.length+1}`,a[1],a[2],a[3],'후반부는 조인/집계/서브쿼리 문맥 안에서 정확한 한 칸을 채웁니다.'); }
+
   items.slice(0,100).forEach(x=>push(...x));
 }
 
@@ -399,7 +445,8 @@ function checkAnswer(){
   const userCompact=compactAnswer($('answerInput').value);
   const ansCompact=compactAnswer(q[4]);
   const isResultType = q[0].includes('실행결과');
-  const ok = isResultType
+  const isFillType = q[0].includes('빈칸');
+  const ok = (isResultType || isFillType)
     ? userCompact===ansCompact || sameListAnswer($('answerInput').value, q[4])
     : userCompact===ansCompact || userCompact.includes(ansCompact) || sameListAnswer($('answerInput').value, q[4]);
   $('feedback').className='feedback '+(ok?'good':'bad');
