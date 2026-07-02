@@ -198,7 +198,7 @@ function buildResult100(){
   add('3유형 실행결과 맞추기 11~30 조건','가격 내림차순 첫 도서','SELECT bookname FROM Book ORDER BY price DESC LIMIT 1;','골프 바이블','ORDER BY LIMIT');
   add('3유형 실행결과 맞추기 11~30 조건','판매가 내림차순 첫 주문번호','SELECT orderid FROM Orders ORDER BY saleprice DESC LIMIT 1;',2,'ORDER BY LIMIT');
   add('3유형 실행결과 맞추기 11~30 조건','전화번호 없는 고객','SELECT name FROM Customer WHERE phone IS NULL;','박세리','NULL 조건');
-  add('3유형 실행결과 맞추기 11~30 조건','판매가 10000 미만 주문 수','SELECT COUNT(*) FROM Orders WHERE saleprice < 10000;',3,'단일 테이블 조건');
+  add('3유형 실행결과 맞추기 11~30 조건','판매가 10000 미만 주문 수','SELECT COUNT(*) FROM Orders WHERE saleprice < 10000;',4,'COUNT(*)는 중복을 제거하지 않고 조건에 맞는 행을 모두 셉니다. 6000, 8000, 6000, 7000 총 4건입니다.');
   add('3유형 실행결과 맞추기 11~30 조건','출판사 오름차순 첫 값','SELECT publisher FROM Book ORDER BY publisher ASC LIMIT 1;','Pearson','단일 테이블 정렬');
 
   // 31~50: 중급 - GROUP BY/HAVING, 단순 JOIN
