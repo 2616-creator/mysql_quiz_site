@@ -44,6 +44,68 @@ const bookNames = rows => list(rows.map(b=>b.bookname));
 const custNames = rows => list(rows.map(c=>c.name));
 const orderIds = rows => list(rows.map(o=>o.orderid));
 
+function buildFillBlank100(){
+  const push=(stage,title,text,template,answer,hint)=>questions.push([stage,title,text,template,String(answer),hint]);
+  const items=[];
+  const add=(title,text,template,answer,hint,stage='1유형 빈칸 채워넣기')=>items.push([stage,`${items.length+1}. ${title}`,text,template,answer,hint]);
+  ['bookname','publisher','price','name','phone','orderdate'].forEach(col=>add(`${col} 조회`,`SELECT 뒤에 들어갈 컬럼명을 쓰세요.`,`SELECT ____ FROM ${['name','phone'].includes(col)?'Customer':col==='orderdate'?'Orders':'Book'};`,col,'SELECT 뒤에는 조회할 컬럼명이 옵니다.'));
+  add('전체 조회','모든 컬럼을 조회하는 기호를 쓰세요.','SELECT ____ FROM Book;','*','*는 전체 컬럼입니다.');
+  add('중복 제거','중복 출판사를 제거하는 키워드를 쓰세요.','SELECT ____ publisher FROM Book;','DISTINCT','DISTINCT는 중복 제거입니다.');
+  ['WHERE','ORDER BY','GROUP BY','HAVING'].forEach(k=>add(`${k} 절`,`${k}가 필요한 위치를 채우세요.`,k==='WHERE'?'SELECT * FROM Book ____ price >= 10000;':k==='ORDER BY'?'SELECT * FROM Book ____ price DESC;':k==='GROUP BY'?'SELECT custid, COUNT(*) FROM Orders ____ custid;':'SELECT custid, COUNT(*) FROM Orders GROUP BY custid ____ COUNT(*) >= 2;',k,`${k} 절의 위치를 익힙니다.`));
+  ['%축구%','박%','_구%','%픽','O%'].forEach(p=>add(`LIKE ${p}`,`LIKE 패턴을 따옴표까지 포함해 쓰세요.`,`SELECT * FROM Book WHERE bookname LIKE ____;`,`'${p}'`,'%는 여러 글자, _는 한 글자입니다.'));
+  [['굿스포츠','publisher'],['대한미디어','publisher'],['박지성','name'],['김연아','name']].forEach(([v,c])=>add(`${v} 문자값`,`문자 조건의 오른쪽 값을 채우세요.`,`SELECT * FROM ${c==='name'?'Customer':'Book'} WHERE ${c} = ____;`,`'${v}'`,'문자열은 따옴표로 감쌉니다.'));
+  ['BETWEEN','IN','IS','NOT','AND','OR','DESC','ASC','LIMIT','AS'].forEach(k=>add(`${k} 키워드`,`빈칸에 알맞은 SQL 키워드를 쓰세요.`,k==='BETWEEN'?'WHERE price ____ 10000 AND 20000':k==='IN'?"WHERE publisher ____ ('굿스포츠', '대한미디어')":k==='IS'?'WHERE phone ____ NULL':k==='NOT'?'WHERE phone IS ____ NULL':k==='AND'?"WHERE publisher = '굿스포츠' ____ price >= 7000":k==='OR'?"WHERE publisher = '나무수' ____ publisher = '삼성당'":k==='DESC'?'ORDER BY price ____':k==='ASC'?'ORDER BY price ____':k==='LIMIT'?'ORDER BY price DESC ____ 1':'SELECT bookname ____ 도서명 FROM Book;',k,'자주 쓰는 핵심 키워드입니다.'));
+  ['COUNT','SUM','AVG','MIN','MAX'].forEach(fn=>add(`${fn} 함수`,`집계 함수 이름을 채우세요.`,`SELECT ____(saleprice) FROM Orders;`,fn,'집계 함수는 여러 행을 하나의 값으로 계산합니다.'));
+  [['Customer.custid = Orders.custid','Customer와 Orders'],['Book.bookid = Orders.bookid','Book과 Orders']].forEach(([cond,txt])=>add(`${txt} 조인 조건`,`${txt}의 ON 조건을 채우세요.`,`FROM ${txt.split('와 ')[0]} JOIN Orders ON ____`,cond,'ON에는 연결 컬럼 비교식을 씁니다.'));
+  ['JOIN','INNER JOIN','LEFT OUTER JOIN','RIGHT OUTER JOIN','ON'].forEach(k=>add(`${k} 조인`,`조인 관련 빈칸을 채우세요.`,k==='ON'?'FROM Customer JOIN Orders ____ Customer.custid = Orders.custid':`FROM Customer ____ Orders ON Customer.custid = Orders.custid`,k,'JOIN과 OUTER JOIN의 방향을 구분합니다.'));
+  ['EXISTS','NOT EXISTS'].forEach(k=>add(`${k} 서브쿼리`,`존재 여부 조건을 완성하세요.`,k==='EXISTS'?'WHERE ____ (SELECT * FROM Orders WHERE Orders.custid = Customer.custid)':'WHERE ____ (SELECT * FROM Orders WHERE Orders.custid = Customer.custid)',k,'EXISTS는 존재, NOT EXISTS는 부재를 검사합니다.'));
+  ['SELECT','FROM','WHERE','GROUP BY','HAVING','ORDER BY'].forEach((k,i)=>add(`실행 순서 ${k}`,`SQL 작성에 필요한 절 키워드를 채우세요.`,i<2?`${k==='SELECT'?'____':'SELECT * ____'} Book;`:`SELECT * FROM Orders ${k==='WHERE'?'____ saleprice >= 10000':k==='GROUP BY'?'____ custid':k==='HAVING'?'GROUP BY custid ____ COUNT(*)>=2':'____ saleprice DESC'};`,k,'절의 역할과 위치를 함께 익힙니다.'));
+  // 고난도 빈칸: 50번 이후는 여러 절 중 핵심 한 칸
+  const advanced=[
+    ['조인 후 조건','SELECT Customer.name FROM Customer JOIN Orders ____ Customer.custid = Orders.custid WHERE Orders.saleprice >= 10000;','ON'],
+    ['LEFT 없는 행','SELECT Customer.* FROM Customer LEFT OUTER JOIN Orders ON Customer.custid=Orders.custid WHERE Orders.orderid ____ NULL;','IS'],
+    ['RIGHT OUTER','SELECT Book.bookname FROM Book ____ Orders ON Book.bookid=Orders.bookid;','RIGHT OUTER JOIN'],
+    ['집계 조건','SELECT custid, SUM(saleprice) FROM Orders GROUP BY custid ____ SUM(saleprice)>=30000;','HAVING'],
+    ['서브쿼리 평균','SELECT * FROM Orders WHERE saleprice > (SELECT ____(saleprice) FROM Orders);','AVG'],
+    ['별칭 정렬','SELECT custid, SUM(saleprice) ____ total FROM Orders GROUP BY custid ORDER BY total DESC;','AS'],
+    ['중복 고객','SELECT COUNT(____ custid) FROM Orders;','DISTINCT'],
+    ['패턴 제외','SELECT * FROM Book WHERE bookname ____ LIKE \'%축구%\';','NOT'],
+    ['목록 포함','SELECT * FROM Book WHERE publisher ____ (\'굿스포츠\',\'나무수\');','IN'],
+    ['상위 1개','SELECT * FROM Book ORDER BY price DESC ____ 1;','LIMIT']
+  ];
+  while(items.length<100){ const a=advanced[items.length%advanced.length]; add(`${a[0]} ${items.length+1}`,'여러 절이 섞인 SQL에서 빈칸을 채우세요.',a[1],a[2],'후반부 빈칸은 조인/집계/서브쿼리 속 핵심 문법입니다.'); }
+  items.slice(0,100).forEach(x=>push(...x));
+}
+
+function buildResult100(){
+  const push=(stage,title,text,template,answer,hint)=>questions.push([stage,title,text,template,String(answer),hint]);
+  const items=[]; const add=(title,sql,answer,hint)=>items.push(['3유형 실행결과 맞추기',`${items.length+1}. ${title}`,'다음 SQL의 실행결과를 쓰세요.',sql,String(answer),hint]);
+  add('Book 행 수','SELECT COUNT(*) FROM Book;',10,'행 수 계산');
+  add('Orders 합계','SELECT SUM(saleprice) FROM Orders;',sum(orderRows.map(o=>o.saleprice)),'전체 합계');
+  add('평균 도서 가격','SELECT AVG(price) FROM Book;',17450,'평균');
+  add('최저 가격','SELECT MIN(price) FROM Book;',6000,'최솟값');
+  add('최고 가격','SELECT MAX(price) FROM Book;',35000,'최댓값');
+  [['굿스포츠',3],['대한미디어',2],['이상미디어',2]].forEach(([pub])=>add(`${pub} 도서 수`,`SELECT COUNT(*) FROM Book WHERE publisher = '${pub}';`,bookRows.filter(b=>b.publisher===pub).length,'WHERE 후 COUNT'));
+  ['축구','야구','Olympic'].forEach(w=>add(`${w} 포함 도서명`,`SELECT bookname FROM Book WHERE bookname LIKE '%${w}%';`,bookNames(bookRows.filter(b=>b.bookname.includes(w)))||'없음','LIKE 결과'));
+  customerRows.forEach(c=>add(`${c.name} 주문 수`,`SELECT COUNT(*) FROM Orders WHERE custid = ${c.custid};`,ordersByCust(c.custid).length,'고객별 주문 수'));
+  customerRows.forEach(c=>add(`${c.name} 총액`,`SELECT SUM(saleprice) FROM Orders WHERE custid = ${c.custid};`,sum(ordersByCust(c.custid).map(o=>o.saleprice))||'NULL','고객별 합계'));
+  add('주문 고객 종류','SELECT COUNT(DISTINCT custid) FROM Orders;',uniq(orderRows.map(o=>o.custid)).length,'DISTINCT');
+  add('HAVING 3','SELECT custid FROM Orders GROUP BY custid HAVING COUNT(*) >= 3;','1, 3','그룹 조건');
+  add('주문 없는 고객',"SELECT name FROM Customer WHERE NOT EXISTS (SELECT * FROM Orders WHERE Orders.custid = Customer.custid);",'박세리','NOT EXISTS');
+  add('주문 없는 도서',"SELECT bookname FROM Book WHERE NOT EXISTS (SELECT * FROM Orders WHERE Orders.bookid = Book.bookid);",'골프 바이블, 올림픽 이야기','NOT EXISTS');
+  orderRows.forEach(o=>add(`주문 ${o.orderid} 고객명`,`SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid WHERE Orders.orderid=${o.orderid};`,cust(o.custid).name,'JOIN 결과'));
+  orderRows.forEach(o=>add(`주문 ${o.orderid} 도서명`,`SELECT Book.bookname FROM Book JOIN Orders ON Book.bookid=Orders.bookid WHERE Orders.orderid=${o.orderid};`,book(o.bookid).bookname,'JOIN 결과'));
+  const adv=[
+    ['총액 30000 이상 고객',"SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid GROUP BY Customer.custid, Customer.name HAVING SUM(Orders.saleprice)>=30000;",'박지성, 추신수','JOIN+HAVING'],
+    ['주문 3개 이상 고객',"SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid GROUP BY Customer.custid, Customer.name HAVING COUNT(*)>=3;",'박지성, 장미란','COUNT HAVING'],
+    ['최고 매출 고객',"SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid GROUP BY Customer.custid, Customer.name ORDER BY SUM(Orders.saleprice) DESC LIMIT 1;",'박지성','정렬 LIMIT'],
+    ['LEFT JOIN 주문없는 고객수',"SELECT COUNT(*) FROM Customer LEFT OUTER JOIN Orders ON Customer.custid=Orders.custid WHERE Orders.orderid IS NULL;",'1','LEFT OUTER JOIN'],
+    ['평균보다 비싼 주문 수',"SELECT COUNT(*) FROM Orders WHERE saleprice > (SELECT AVG(saleprice) FROM Orders);",'5','서브쿼리']
+  ];
+  while(items.length<100){ const a=adv[items.length%adv.length]; add(`${a[0]} ${items.length+1}`,a[1],a[2],a[3]); }
+  items.slice(0,100).forEach(x=>push(...x));
+}
+
 function buildProgressive100(){
   const push=(stage,title,text,template,answer,hint)=>questions.push([stage,title,text,template,String(answer),hint]);
 
@@ -188,7 +250,10 @@ function buildProgressive100(){
   ].forEach(x=>push(...x));
 }
 
+buildFillBlank100();
 buildProgressive100();
+buildResult100();
+questions.slice(100,200).forEach(q=>{ q[0] = `2유형 구문 작성하기 - ${q[0]}`; });
 
 let current = Number(localStorage.getItem('mysqlQuizCurrent') || 0);
 if(current >= questions.length) current = 0;
@@ -224,20 +289,23 @@ function closeSchemaPanel(){
 function normalize(s){return s.toLowerCase().replace(/;\s*$/,'').replace(/\s+/g,' ').trim();}
 function getExplanation(q){
   const type=q[0], title=q[1], sql=q[3], ans=q[4], hint=q[5];
-  return `정답 SQL:\n${ans}\n\n이유: 요구사항을 SQL 절로 나누면 됩니다. 쉬운 SELECT부터 시작해서 WHERE, ORDER BY, 집계, GROUP BY, JOIN, 서브쿼리 순서로 점점 확장해 나가면 됩니다. 핵심 개념: ${hint}${sql ? `\n\n참고:\n${sql}` : ''}`;
+  if(type.includes('실행결과')) return `정답: ${ans}\n\n이유: 실제 테이블 값을 기준으로 SQL 실행 순서를 따라가면 됩니다. FROM/JOIN으로 행을 만들고, WHERE로 걸러낸 뒤, GROUP BY와 HAVING을 적용하고 SELECT 결과를 읽습니다. 핵심 개념: ${hint}\n\nSQL:\n${sql}`;
+  if(type.includes('빈칸')) return `정답: ${ans}\n\n이유: 빈칸 위치를 보고 필요한 키워드나 값을 판단합니다. WHERE는 조건, LIKE는 패턴, GROUP BY는 묶기, HAVING은 집계 조건, JOIN ON은 테이블 연결에 사용합니다. 핵심 개념: ${hint}\n\n문제 구문:\n${sql}`;
+  return `정답 SQL:\n${ans}\n\n이유: 요구사항을 SQL 절로 나누면 됩니다. 쉬운 SELECT부터 시작해서 WHERE, ORDER BY, 집계, GROUP BY, JOIN, 서브쿼리 순서로 점점 확장해 나가면 됩니다. 핵심 개념: ${hint}`;
 }
+function currentTypeStart(){ return Math.floor(current / 100) * 100; }
 function render(){
   const q = questions[current];
-  const sectionStart = Math.floor(current / 10) * 10;
-  const sectionEnd = Math.min(sectionStart + 9, questions.length - 1);
-  const localNum = current + 1;
-  $('numBadge').textContent = `${localNum} / ${questions.length}`;
+  const typeStart = currentTypeStart();
+  const localNum = current - typeStart + 1;
+  $('numBadge').textContent = `${localNum} / 100`;
   $('levelBadge').textContent = q[0];
   $('questionTitle').textContent = q[1];
   $('questionText').textContent = q[2];
   $('templateBox').textContent = q[3] || 'SQL 전체를 직접 작성하세요.';
   $('answerInput').value = saved[current] || '';
   $('feedback').className='feedback'; $('feedback').textContent='';
+  $('retryBtn').classList.add('hidden');
   $('hintBox').className='hint hidden'; $('hintBox').textContent=q[5];
   $('answerBox').className='answer hidden'; $('answerBox').textContent=getExplanation(q);
   $('prevBtn').disabled = current===0;
@@ -255,8 +323,9 @@ function checkAnswer(){
   const ans=normalize(questions[current][4]);
   const ok=user===ans;
   $('feedback').className='feedback '+(ok?'good':'bad');
-  $('feedback').textContent=ok?'정답입니다!':'아직 달라요. 아래 이유를 보고 개념을 확인하세요.';
+  $('feedback').textContent=ok?'정답입니다!':'아직 달라요. 다시풀기를 누른 뒤 한 번 더 풀어보세요.';
   $('answerBox').classList.remove('hidden');
+  $('retryBtn').classList.remove('hidden');
   if(ok){ solved[current]=true; localStorage.setItem('mysqlQuizSolved',JSON.stringify(solved)); updateProgress(); }
 }
 $('answerInput').addEventListener('keydown', e=>{
@@ -265,6 +334,17 @@ $('answerInput').addEventListener('keydown', e=>{
     checkAnswer();
   }
 });
+$('retryBtn').onclick=()=>{
+  $('answerInput').value='';
+  delete saved[current];
+  localStorage.setItem('mysqlQuizAnswers',JSON.stringify(saved));
+  $('feedback').className='feedback';
+  $('feedback').textContent='';
+  $('answerBox').classList.add('hidden');
+  $('hintBox').classList.add('hidden');
+  $('retryBtn').classList.add('hidden');
+  $('answerInput').focus();
+};
 $('hintBtn').onclick=()=>$('hintBox').classList.toggle('hidden');
 $('showBtn').onclick=()=>$('answerBox').classList.toggle('hidden');
 $('nextBtn').onclick=()=>{
@@ -274,16 +354,17 @@ $('prevBtn').onclick=()=>{
   if(current>0){current--;render();}
 };
 document.querySelectorAll('.level[data-jump]').forEach(b=>b.onclick=()=>{current=Number(b.dataset.jump);render();});
+document.querySelectorAll('.level[data-offset]').forEach(b=>b.onclick=()=>{current=currentTypeStart()+Number(b.dataset.offset);render();});
 function jumpToQuestion(){
   const input = $('jumpInput');
   const n = Number(input.value);
-  if(!Number.isInteger(n) || n < 1 || n > questions.length){
-    alert(`1~${questions.length} 사이의 문제 번호만 입력하세요.`);
+  if(!Number.isInteger(n) || n < 1 || n > 100){
+    alert('현재 유형 안에서 1~100 사이의 문제 번호만 입력하세요.');
     input.value='';
     input.focus();
     return;
   }
-  current = n - 1;
+  current = currentTypeStart() + n - 1;
   render();
 }
 $('jumpBtn').onclick=jumpToQuestion;
@@ -295,7 +376,7 @@ $('jumpInput').addEventListener('keydown', e=>{
 });
 $('jumpInput').addEventListener('input', e=>{
   const n = Number(e.target.value);
-  if(e.target.value && (n < 1 || n > questions.length)) e.target.value = String(Math.min(Math.max(n || 1, 1), questions.length));
+  if(e.target.value && (n < 1 || n > 100)) e.target.value = String(Math.min(Math.max(n || 1, 1), 100));
 });
 $('resetBtn').onclick=()=>{if(confirm('진도와 입력 답안을 모두 지울까요?')){localStorage.removeItem('mysqlQuizCurrent');localStorage.removeItem('mysqlQuizAnswers');localStorage.removeItem('mysqlQuizSolved');location.reload();}};
 function showQuiz(){ $('quizView').classList.remove('hidden'); $('conceptView').classList.add('hidden'); }

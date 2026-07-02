@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Madang MySQL 100문제 단계별 연습 사이트</title>
-  <link rel="stylesheet" href="style.css?v=202607021345" />
+  <link rel="stylesheet" href="style.css?v=202607021410" />
 </head>
 <body>
   <header class="topbar">
@@ -25,29 +25,27 @@
       <div class="card">
         <h2>진도</h2>
         <div class="progress-wrap"><div id="progressBar"></div></div>
-        <p id="progressText">0 / 100</p>
+        <p id="progressText">0 / 300</p>
         <div class="jump-row">
-          <input id="jumpInput" type="number" min="1" max="100" placeholder="문제 번호" />
+          <input id="jumpInput" type="number" min="1" max="100" placeholder="유형 내 번호" />
           <button id="jumpBtn">이동</button>
         </div>
-        <p class="jump-help">1~100번 중 풀고 싶은 번호를 입력하세요.</p>
+        <p class="jump-help">현재 유형 안에서 1~100번만 입력할 수 있습니다.</p>
       </div>
       <div class="card">
         <h2>유형 이동</h2>
-        <button class="level" data-jump="0">기본 조회형: SELECT / DISTINCT</button>
-        <button class="level" data-jump="10">조건형: WHERE / LIKE / NULL</button>
-        <button class="level" data-jump="20">정렬형: AND / OR / ORDER BY</button>
-        <button class="level" data-jump="30">집계형: COUNT / SUM / AVG</button>
-        <button class="level" data-jump="40">조인 개념형: JOIN / OUTER JOIN</button>
-        <button class="level" data-jump="50">활용형: 조건+조인+집계</button>
+        <button class="level" data-jump="0">빈칸 채워넣기 100문제</button>
+        <button class="level" data-jump="100">구문 작성하기 100문제</button>
+        <button class="level" data-jump="200">실행결과 맞추기 100문제</button>
+        <p class="jump-help">각 유형마다 1~100번 문제가 있습니다.</p>
       </div>
       <div class="card">
         <h2>난이도 이동</h2>
-        <button class="level" data-jump="0">1~10. 기초</button>
-        <button class="level" data-jump="30">31~40. 중급 시작</button>
-        <button class="level" data-jump="50">51~60. 활용 시작</button>
-        <button class="level" data-jump="70">71~80. 어려움</button>
-        <button class="level" data-jump="90">91~100. 최종 종합</button>
+        <button class="level" data-offset="0">1~10. 기초</button>
+        <button class="level" data-offset="30">31~40. 중급 시작</button>
+        <button class="level" data-offset="50">51~60. 활용 시작</button>
+        <button class="level" data-offset="70">71~80. 어려움</button>
+        <button class="level" data-offset="90">91~100. 최종 종합</button>
       </div>
       <div class="card small">
         <h2>풀이 방식</h2>
@@ -83,6 +81,7 @@
         <button id="showBtn" class="ghost">정답/이유 보기</button>
       </div>
       <div id="feedback" class="feedback"></div>
+      <button id="retryBtn" class="ghost hidden">다시풀기</button>
       <div id="hintBox" class="hint hidden"></div>
       <div id="answerBox" class="answer hidden"></div>
     </section>
@@ -190,6 +189,6 @@ WHERE bookname LIKE '%축구%'</pre>
     </div>
   </dialog>
 
-  <script src="script.js?v=202607021345"></script>
+  <script src="script.js?v=202607021410"></script>
 </body>
 </html>
