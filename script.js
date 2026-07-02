@@ -105,20 +105,59 @@ function buildFillBlank100(){
   add('계산식 열','할인액을 정가-판매가로 계산합니다. 빈칸에 판매가격 열을 쓰세요.','SELECT Book.price - Orders.____ AS discount FROM Book JOIN Orders ON Book.bookid = Orders.bookid;','saleprice','판매가격 열은 saleprice입니다.');
   add('복수 정렬 구분','주문일자 내림차순 후 판매가격 오름차순으로 정렬할 때 두 기준 사이에 들어갈 기호는?','ORDER BY orderdate DESC ____ saleprice ASC',',','복수 정렬 기준은 쉼표로 구분합니다.');
 
-  // 51~100 활용 빈칸: 문맥 속 핵심 하나만 묻기
-  const advanced=[
-    ['JOIN 필터','박지성이 주문한 도서명을 찾습니다. 고객명 열을 쓰세요.',"WHERE Customer.____ = '박지성'",'name'],
-    ['JOIN 필터2','축구 도서를 주문한 고객을 찾습니다. 도서명 열을 쓰세요.',"WHERE Book.____ LIKE '%축구%'",'bookname'],
-    ['집계 정렬','고객별 총액을 total로 정렬합니다. ORDER BY 뒤 별칭을 쓰세요.','SELECT custid, SUM(saleprice) AS total FROM Orders GROUP BY custid ORDER BY ____ DESC;','total'],
-    ['HAVING 기준','주문 3개 이상 고객을 찾습니다. COUNT 안을 채우세요.','HAVING COUNT(____) >= 3','*'],
-    ['OUTER NULL','주문 없는 도서를 찾습니다. NULL이 되는 Orders의 기본키 열을 쓰세요.','WHERE Orders.____ IS NULL','orderid'],
-    ['서브쿼리 열','주문된 적 없는 도서를 찾습니다. 비교할 도서번호 열을 쓰세요.','WHERE Orders.____ = Book.bookid','bookid'],
-    ['IN 목록','굿스포츠와 대한미디어 중 하나인 도서를 찾습니다. 두 번째 값을 쓰세요.',"publisher IN ('굿스포츠', ____)",'\'대한미디어\''],
-    ['LIKE 한글자','세 번째 글자가 대인 이름 패턴을 쓰세요.',"name LIKE ____",'\'__대%\''],
-    ['계산 조건','할인액이 1000 이상입니다. Book.price에서 뺄 Orders 열을 쓰세요.','WHERE Book.price - Orders.____ >= 1000','saleprice'],
-    ['최종 제한','총액 1등 고객만 보려고 합니다. 마지막 키워드와 숫자를 쓰세요.','ORDER BY total DESC ____','LIMIT 1']
-  ];
-  while(items.length<100){ const a=advanced[items.length%advanced.length]; add(`${a[0]} ${items.length+1}`,a[1],a[2],a[3],'후반부는 조인/집계/서브쿼리 문맥 안에서 정확한 한 칸을 채웁니다.'); }
+  // 51~100: 쉬운 빈칸으로 돌아가지 않고 JOIN → GROUP → OUTER JOIN → 서브쿼리 → 종합 순서로 계속 상승
+  [
+    ['박지성 주문 조건','박지성이 주문한 도서명을 찾습니다. 고객명 열을 쓰세요.',"WHERE Customer.____ = '박지성'",'name'],
+    ['축구 주문 조건','축구 도서를 주문한 고객을 찾습니다. 도서명 열을 쓰세요.',"WHERE Book.____ LIKE '%축구%'",'bookname'],
+    ['판매가 조건','판매가격이 10000원 이상인 주문만 남깁니다. 열 이름을 쓰세요.','WHERE Orders.____ >= 10000','saleprice'],
+    ['주문일 조건','2020-07-07 주문 도서만 찾습니다. 날짜 열 이름을 쓰세요.','WHERE Orders.____ = \'2020-07-07\'','orderdate'],
+    ['JOIN 결과 컬럼','고객명과 도서명을 함께 조회합니다. Book의 도서명 열을 쓰세요.','SELECT Customer.name, Book.____ FROM Customer JOIN Orders ON Customer.custid=Orders.custid JOIN Book ON Orders.bookid=Book.bookid;','bookname'],
+    ['JOIN 연결1','Customer와 Orders를 연결하는 Customer 쪽 열을 쓰세요.','ON Customer.____ = Orders.custid','custid'],
+    ['JOIN 연결2','Orders와 Book을 연결하는 Orders 쪽 열을 쓰세요.','ON Orders.____ = Book.bookid','bookid'],
+    ['JOIN 연결3','Orders와 Book을 연결하는 Book 쪽 열을 쓰세요.','ON Orders.bookid = Book.____','bookid'],
+    ['JOIN+LIKE','야구 도서를 주문한 고객을 찾습니다. LIKE 패턴을 쓰세요.','WHERE Book.bookname LIKE ____','\'%야구%\''],
+    ['JOIN+BETWEEN','판매가격 10000~20000 주문입니다. 첫 키워드를 쓰세요.','WHERE Orders.saleprice ____ 10000 AND 20000','BETWEEN'],
+    ['그룹 기준','고객별 주문 수를 구합니다. GROUP BY에 들어갈 Customer 열을 쓰세요.','GROUP BY Customer.____, Customer.name','custid'],
+    ['그룹 출력','고객별 총액을 total이라는 별칭으로 출력합니다. 별칭 키워드를 쓰세요.','SUM(Orders.saleprice) ____ total','AS'],
+    ['그룹 정렬','고객별 총액 total을 큰 순서로 정렬합니다. 방향을 쓰세요.','ORDER BY total ____','DESC'],
+    ['집계 조건','총액 30000 이상 고객만 남깁니다. 집계 조건 절을 쓰세요.','GROUP BY Customer.custid, Customer.name ____ SUM(Orders.saleprice) >= 30000','HAVING'],
+    ['COUNT 기준','주문 없는 고객도 포함해 주문 수를 셉니다. COUNT 안에 들어갈 열을 쓰세요.','COUNT(Orders.____)','orderid'],
+    ['DISTINCT 기준','고객별 주문한 도서 종류 수입니다. DISTINCT 뒤 열을 쓰세요.','COUNT(DISTINCT Orders.____)','bookid'],
+    ['출판사 그룹','출판사별 매출을 구합니다. GROUP BY 뒤 열을 쓰세요.','GROUP BY Book.____','publisher'],
+    ['복수 그룹','고객명까지 출력하려면 GROUP BY의 두 번째 열을 쓰세요.','GROUP BY Customer.custid, Customer.____','name'],
+    ['HAVING COUNT','주문 3개 이상 조건입니다. 비교 연산자를 쓰세요.','HAVING COUNT(*) ____ 3','>='],
+    ['그룹 평균','고객별 평균 주문금액입니다. 함수 이름을 쓰세요.','SELECT Customer.name, ____(Orders.saleprice) FROM Customer JOIN Orders ON Customer.custid=Orders.custid GROUP BY Customer.custid, Customer.name;','AVG'],
+    ['LEFT JOIN','주문 없는 고객도 포함합니다. JOIN 종류를 쓰세요.','FROM Customer ____ Orders ON Customer.custid=Orders.custid','LEFT OUTER JOIN'],
+    ['RIGHT JOIN','모든 주문을 기준으로 고객 정보를 붙입니다. JOIN 종류를 쓰세요.','FROM Customer ____ Orders ON Customer.custid=Orders.custid','RIGHT OUTER JOIN'],
+    ['LEFT NULL','주문 없는 고객을 찾습니다. NULL이 되는 Orders 열을 쓰세요.','WHERE Orders.____ IS NULL','orderid'],
+    ['도서 LEFT NULL','주문 없는 도서를 찾습니다. NULL이 되는 Orders 열을 쓰세요.','WHERE Orders.____ IS NULL','orderid'],
+    ['EXISTS','주문한 적 있는 고객을 찾는 키워드를 쓰세요.','WHERE ____ (SELECT * FROM Orders WHERE Orders.custid=Customer.custid)','EXISTS'],
+    ['NOT EXISTS','주문한 적 없는 고객을 찾는 키워드를 쓰세요.','WHERE ____ (SELECT * FROM Orders WHERE Orders.custid=Customer.custid)','NOT EXISTS'],
+    ['IN 서브쿼리','주문된 도서만 찾습니다. 빈칸을 쓰세요.','WHERE bookid ____ (SELECT bookid FROM Orders)','IN'],
+    ['NOT IN 서브쿼리','주문되지 않은 도서만 찾습니다. 빈칸을 쓰세요.','WHERE bookid ____ (SELECT bookid FROM Orders)','NOT IN'],
+    ['OUTER 집계','주문 없는 도서도 0으로 세려면 COUNT 안에 어떤 Orders 열을 넣을까요?','COUNT(Orders.____)','orderid'],
+    ['OUTER 그룹','주문 없는 도서도 포함한 도서별 주문 수입니다. GROUP BY의 첫 열을 쓰세요.','GROUP BY Book.____, Book.bookname','bookid'],
+    ['평균 서브쿼리','평균보다 비싼 도서를 찾습니다. 함수 이름을 쓰세요.','WHERE price > (SELECT ____(price) FROM Book)','AVG'],
+    ['최고가 서브쿼리','최고가 도서를 찾습니다. 함수 이름을 쓰세요.','WHERE price = (SELECT ____(price) FROM Book)','MAX'],
+    ['최저가 서브쿼리','최저 판매가 주문을 찾습니다. 함수 이름을 쓰세요.','WHERE saleprice = (SELECT ____(saleprice) FROM Orders)','MIN'],
+    ['상관 서브쿼리','자기 출판사의 평균보다 비싼 도서입니다. 바깥 별칭을 쓰세요.','WHERE price > (SELECT AVG(price) FROM Book WHERE publisher = ____.publisher)','b'],
+    ['할인액 계산','정가에서 판매가를 뺍니다. 판매가 열을 쓰세요.','Book.price - Orders.____ AS discount','saleprice'],
+    ['계산식 조건','할인액이 1000 이상입니다. 비교 연산자를 쓰세요.','WHERE Book.price - Orders.saleprice ____ 1000','>='],
+    ['최근 주문','가장 최근 주문일과 비교합니다. 함수 이름을 쓰세요.','WHERE Orders.orderdate = (SELECT ____(orderdate) FROM Orders)','MAX'],
+    ['최다 정렬','가장 주문이 많은 고객 1명입니다. 정렬 방향을 쓰세요.','ORDER BY COUNT(*) ____ LIMIT 1','DESC'],
+    ['매출 1위','총액 1위 고객입니다. LIMIT 뒤 숫자를 쓰세요.','ORDER BY SUM(Orders.saleprice) DESC LIMIT ____','1'],
+    ['고객별 평균 비교','고객별 평균이 전체 평균 이상입니다. HAVING의 함수 이름을 쓰세요.','HAVING ____(Orders.saleprice) >= (SELECT AVG(saleprice) FROM Orders)','AVG'],
+    ['종합1','출판사별 고객 종류 수입니다. COUNT 안의 중복 제거 키워드를 쓰세요.','COUNT(____ Orders.custid)','DISTINCT'],
+    ['종합2','출판사별 매출을 총액 내림차순으로 정렬합니다. 별칭을 쓰세요.','ORDER BY ____ DESC','total'],
+    ['종합3','LEFT JOIN 집계에서 NULL 주문을 세지 않도록 COUNT 안에 열을 씁니다.','COUNT(Orders.____) AS order_count','orderid'],
+    ['종합4','고객별 주문 수, 총액, 평균액 중 평균 함수명을 쓰세요.','____(Orders.saleprice) AS avg_sale','AVG'],
+    ['종합5','총액 평균 이상 그룹 비교에서 파생 테이블 별칭을 쓰세요.','SELECT AVG(t.total) FROM (SELECT SUM(saleprice) AS total FROM Orders GROUP BY custid) ____','t'],
+    ['종합6','복수 정렬에서 주문 수 내림차순 다음 총액 내림차순입니다. 중간 기호를 쓰세요.','ORDER BY COUNT(*) DESC ____ SUM(Orders.saleprice) DESC',','],
+    ['종합7','NOT EXISTS 안쪽에서 바깥 Customer와 비교할 Orders 열을 쓰세요.','WHERE Orders.____ = Customer.custid','custid'],
+    ['종합8','NOT EXISTS 안쪽에서 바깥 Book과 비교할 Orders 열을 쓰세요.','WHERE Orders.____ = Book.bookid','bookid'],
+    ['종합9','전체 평균보다 큰 출판사별 총액 조건입니다. 절 이름을 쓰세요.','GROUP BY Book.publisher ____ SUM(Orders.saleprice) > (SELECT AVG(saleprice) FROM Orders)','HAVING'],
+    ['최종 종합','JOIN, GROUP BY, HAVING 후 총액 내림차순 정렬입니다. 마지막 절을 쓰세요.','HAVING SUM(Orders.saleprice) > 10000 ____ total DESC','ORDER BY']
+  ].forEach(x=>add(...x));
 
   items.slice(0,100).forEach(x=>push(...x));
 }
