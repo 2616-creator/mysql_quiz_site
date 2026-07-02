@@ -421,18 +421,19 @@ function resultHeader(sql){
   if(cols.length === 1) return `[${cols[0]}]`;
   return `[${cols.join('] [')}]`;
 }
+function blankSql(sql){ return (sql || '').replace(/____/g, '(  )'); }
 function formatQuestionText(q){
   const type=q[0], text=q[2];
   if(type.includes('실행결과')) return `<SQL 구문>의 <실행 결과>를 작성하시오.\n(단, 아래 형식에 맞게 작성하시오.)`;
   if(type.includes('구문 작성')) return `<SQL 질의>에 따른 <SQL 구문>에 알맞은 코드를 작성하시오.\n\n<SQL 질의>\n${text}`;
-  if(type.includes('빈칸')) return `<SQL 구문>의 빈칸에 알맞은 코드를 작성하시오.\n\n${text}`;
+  if(type.includes('빈칸')) return `<SQL 구문>에 따른 조건을 보고 빈칸에 알맞은 코드를 작성하시오.\n\n<문제 조건>\n${text}`;
   return text;
 }
 function formatTemplate(q){
   const type=q[0], sql=q[3];
   if(type.includes('실행결과')) return `<SQL 구문>\n${sql}\n\n<실행결과>\n${resultHeader(sql)}`;
   if(type.includes('구문 작성')) return `<SQL 구문>\n직접 작성하세요.`;
-  if(type.includes('빈칸')) return `<SQL 구문>\n${sql}`;
+  if(type.includes('빈칸')) return `<SQL 구문>\n${blankSql(sql)}\n\n<답안>\n빈칸에 들어갈 코드만 입력하세요.`;
   return sql || 'SQL 전체를 직접 작성하세요.';
 }
 function render(){
