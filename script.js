@@ -287,6 +287,7 @@ function closeSchemaPanel(){
   $('schemaPanel').classList.add('hidden');
 }
 function normalize(s){return s.toLowerCase().replace(/;\s*$/,'').replace(/\s+/g,' ').trim();}
+function compactAnswer(s){return s.toLowerCase().replace(/;/g,'').replace(/\s+/g,'').trim();}
 function getExplanation(q){
   const type=q[0], ans=q[4];
   if(type.includes('실행결과') || type.includes('빈칸')) return `정답: ${ans}`;
@@ -318,9 +319,15 @@ function updateProgress(){
 }
 $('answerInput').addEventListener('input', e=>{saved[current]=e.target.value; localStorage.setItem('mysqlQuizAnswers',JSON.stringify(saved));});
 function checkAnswer(){
+  const q = questions[current];
   const user=normalize($('answerInput').value);
-  const ans=normalize(questions[current][4]);
-  const ok=user===ans;
+  const ans=normalize(q[4]);
+  const userCompact=compactAnswer($('answerInput').value);
+  const ansCompact=compactAnswer(q[4]);
+  const isResultType = q[0].includes('실행결과');
+  const ok = isResultType
+    ? userCompact===ansCompact
+    : userCompact===ansCompact || userCompact.includes(ansCompact);
   $('feedback').className='feedback '+(ok?'good':'bad');
   $('feedback').textContent=ok?'정답입니다!':'아직 달라요. 다시풀기를 누른 뒤 한 번 더 풀어보세요.';
   $('answerBox').classList.add('hidden');
