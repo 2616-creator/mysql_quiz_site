@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Madang MySQL 100문제 단계별 연습 사이트</title>
-  <link rel="stylesheet" href="style.css?v=202607021420" />
+  <link rel="stylesheet" href="style.css?v=202607021435" />
 </head>
 <body>
   <header class="topbar">
@@ -96,74 +96,193 @@
       <button id="backToQuizBtn">문제 풀러가기</button>
     </section>
 
-    <section class="concept-grid">
-      <article class="concept-card">
-        <h3>1. 테이블명.컬럼명 개념</h3>
-        <p><b>Book.bookid</b>, <b>Orders.bookid</b>처럼 쓰는 것은 “어느 테이블의 컬럼인지” 정확히 지정하는 문법입니다.</p>
-        <pre>SELECT Book.bookname, Orders.orderid
-FROM Book JOIN Orders
-ON Book.bookid = Orders.bookid;</pre>
-        <p>두 테이블에 같은 이름의 컬럼이 있을 때는 반드시 구분해주는 것이 좋습니다.</p>
-      </article>
+    <section class="concept-markdown">
+      <article class="concept-card wide markdown-body">
+        <h3>MYSQL</h3>
+        <h2>📊 SQL 핵심 명령어 및 문법 요약</h2>
+        <p>아래 내용은 시험에 자주 나오는 SQL 문법을 <b>기능 설명 + 예시문</b> 형태로 정리한 것입니다.</p>
 
-      <article class="concept-card">
-        <h3>2. JOIN 기본 개념</h3>
-        <p><b>JOIN</b>은 여러 테이블을 연결해서 한 번에 조회하는 문법입니다. 연결 기준은 보통 <b>ON</b>에 씁니다.</p>
-        <pre>FROM Customer JOIN Orders
-ON Customer.custid = Orders.custid</pre>
-        <p>custid가 같은 행끼리 붙어서 고객 이름과 주문 정보를 함께 볼 수 있습니다.</p>
-      </article>
-
-      <article class="concept-card">
-        <h3>3. LEFT OUTER JOIN</h3>
-        <p>왼쪽 테이블은 전부 살리고, 오른쪽에 맞는 데이터가 없으면 오른쪽 컬럼은 <b>NULL</b>로 나옵니다.</p>
-        <pre>SELECT Book.bookname, Orders.orderid
-FROM Book LEFT JOIN Orders
-ON Book.bookid = Orders.bookid;</pre>
-        <p>예: 주문된 적 없는 도서도 조회하고 싶을 때 사용합니다.</p>
-      </article>
-
-      <article class="concept-card">
-        <h3>4. RIGHT OUTER JOIN</h3>
-        <p>오른쪽 테이블은 전부 살리고, 왼쪽에 맞는 데이터가 없으면 왼쪽 컬럼은 <b>NULL</b>로 나옵니다.</p>
-        <pre>SELECT Book.bookname, Orders.orderid
-FROM Book RIGHT JOIN Orders
-ON Book.bookid = Orders.bookid;</pre>
-      </article>
-
-      <article class="concept-card">
-        <h3>5. MIN / MAX</h3>
-        <p><b>MIN</b>은 최솟값, <b>MAX</b>는 최댓값을 구하는 집계 함수입니다.</p>
-        <pre>SELECT MIN(price) FROM Book;
-SELECT MAX(price) FROM Book;</pre>
-        <p>GROUP BY와 함께 쓰면 그룹별 최솟값/최댓값도 구할 수 있습니다.</p>
-        <pre>SELECT custid, MAX(saleprice)
+        <table class="concept-table">
+          <thead>
+            <tr><th>명령어 / 키워드</th><th>기능 설명</th><th>문법 및 활용 예시</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>DISTINCT</code></td>
+              <td>조회 결과에서 중복된 행을 제거하고 고유한 값만 출력</td>
+              <td><pre>SELECT DISTINCT publisher FROM Book;</pre></td>
+            </tr>
+            <tr>
+              <td><code>COUNT(DISTINCT ...)</code></td>
+              <td>중복을 제거한 데이터의 <b>순수한 종류 개수</b>를 구함</td>
+              <td><pre>SELECT COUNT(DISTINCT custid) FROM Orders;</pre></td>
+            </tr>
+            <tr>
+              <td><code>WHERE</code></td>
+              <td>테이블의 개별 행(Row)에 조건을 걸어 그룹화하기 전에 필터링</td>
+              <td><pre>WHERE custid &gt;= 3;
+WHERE phone != '5678';</pre></td>
+            </tr>
+            <tr>
+              <td><code>GROUP BY</code></td>
+              <td>특정 열의 값이 같은 데이터들을 하나의 그룹으로 묶음</td>
+              <td><pre>SELECT custid, COUNT(*)
 FROM Orders
-GROUP BY custid;</pre>
+GROUP BY custid;</pre></td>
+            </tr>
+            <tr>
+              <td><code>HAVING</code></td>
+              <td><code>GROUP BY</code>로 그룹화된 결과, 즉 통계값에 조건을 걸어 필터링</td>
+              <td><pre>SELECT custid, COUNT(*)
+FROM Orders
+GROUP BY custid
+HAVING COUNT(*) &gt;= 3;</pre></td>
+            </tr>
+            <tr>
+              <td><code>LIKE</code></td>
+              <td>와일드카드 기호 <code>_</code>, <code>%</code>를 사용하여 문자열 패턴 검색</td>
+              <td><pre>WHERE name LIKE '_대%';
+-- 두 번째 글자가 '대'
+
+WHERE bookname LIKE '%축구%';
+-- '축구' 포함</pre></td>
+            </tr>
+            <tr>
+              <td><code>OR</code></td>
+              <td>나열된 조건 중 하나라도 만족하면 데이터를 선택</td>
+              <td><pre>WHERE publisher = '굿스포츠'
+   OR publisher = '대한미디어';</pre></td>
+            </tr>
+            <tr>
+              <td><code>ORDER BY</code></td>
+              <td>데이터를 특정 열 기준으로 정렬. 보통 쿼리문의 가장 마지막에 위치</td>
+              <td><pre>ORDER BY price ASC;
+ORDER BY orderdate DESC;</pre></td>
+            </tr>
+            <tr>
+              <td><code>DESC</code></td>
+              <td>내림차순 정렬. 큰 값에서 작은 값 순서</td>
+              <td><pre>ORDER BY orderid DESC;
+-- 10 → 1</pre></td>
+            </tr>
+            <tr>
+              <td><code>ASC</code></td>
+              <td>오름차순 정렬. 작은 값에서 큰 값 순서. 기본값이라 생략 가능</td>
+              <td><pre>ORDER BY orderid ASC;
+-- 1 → 10</pre></td>
+            </tr>
+            <tr>
+              <td>복수 정렬 <code>,</code></td>
+              <td>1순위 정렬 값이 같을 때 쉼표 뒤의 2순위 기준으로 재정렬</td>
+              <td><pre>ORDER BY orderdate DESC, saleprice ASC;</pre></td>
+            </tr>
+            <tr>
+              <td><code>LEFT OUTER JOIN</code></td>
+              <td>왼쪽 테이블을 기준으로 합침. 오른쪽에 짝이 없어도 왼쪽 데이터는 다 살림</td>
+              <td><pre>FROM Book LEFT OUTER JOIN Orders
+ON Book.bookid = Orders.bookid;</pre></td>
+            </tr>
+            <tr>
+              <td><code>RIGHT OUTER JOIN</code></td>
+              <td>오른쪽 테이블을 기준으로 합침. 왼쪽에 짝이 없어도 오른쪽 데이터는 다 살림</td>
+              <td><pre>FROM Book RIGHT OUTER JOIN Orders
+ON Book.bookid = Orders.bookid;</pre></td>
+            </tr>
+            <tr>
+              <td><code>UNION</code></td>
+              <td>두 개의 조회 결과를 위아래로 합치는 합집합. 중복 데이터는 자동 제거</td>
+              <td><pre>SELECT name FROM Customer
+UNION
+SELECT name FROM NewCustomer;</pre></td>
+            </tr>
+            <tr>
+              <td><code>INTERSECT</code></td>
+              <td>두 개의 조회 결과에서 공통으로 존재하는 데이터만 뽑는 교집합</td>
+              <td><pre>SELECT name FROM CustomerA
+INTERSECT
+SELECT name FROM CustomerB;</pre></td>
+            </tr>
+            <tr>
+              <td><code>AS</code></td>
+              <td>열 이름이나 테이블 이름에 별명(Alias)을 붙여 일시적으로 바꿔줌</td>
+              <td><pre>SELECT name AS 고객이름 FROM Customer;
+SELECT SUM(saleprice) AS 총액 FROM Orders;</pre></td>
+            </tr>
+            <tr>
+              <td><code>EXISTS</code></td>
+              <td>서브쿼리의 조건을 만족하는 데이터가 하나라도 존재하는지 참/거짓 확인</td>
+              <td><pre>SELECT * FROM Customer
+WHERE EXISTS (
+  SELECT * FROM Orders
+  WHERE Orders.custid = Customer.custid
+);</pre></td>
+            </tr>
+          </tbody>
+        </table>
       </article>
 
-      <article class="concept-card">
-        <h3>6. WHERE vs HAVING</h3>
-        <p><b>WHERE</b>는 그룹으로 묶기 전 개별 행 조건, <b>HAVING</b>은 GROUP BY 이후 집계 결과 조건입니다.</p>
+      <article class="concept-card wide markdown-body warning-card">
+        <h2>⚠️ 핵심 주의사항 — 시험 단골 출제</h2>
+
+        <h3>1. WHERE vs HAVING 실행 순서</h3>
+        <p>컴퓨터는 <b>WHERE로 개별 데이터를 먼저 거른 뒤</b>, <b>GROUP BY로 묶고</b>, 마지막에 <b>HAVING으로 그룹 결과를 검사</b>합니다.</p>
         <pre>SELECT custid, COUNT(*)
 FROM Orders
-WHERE saleprice >= 10000
+WHERE saleprice &gt;= 10000
 GROUP BY custid
-HAVING COUNT(*) >= 2;</pre>
-      </article>
+HAVING COUNT(*) &gt;= 2;</pre>
+        <ul>
+          <li><code>WHERE</code>: 개별 행 조건</li>
+          <li><code>HAVING</code>: <code>COUNT</code>, <code>SUM</code>, <code>AVG</code> 같은 집계 결과 조건</li>
+          <li><b>주의:</b> <code>WHERE COUNT(*) &gt;= 2</code>처럼 쓰면 안 됩니다.</li>
+        </ul>
 
-      <article class="concept-card">
-        <h3>7. NULL 비교</h3>
-        <p>NULL은 <b>=</b>, <b>!=</b>로 비교하지 않고 <b>IS NULL</b>, <b>IS NOT NULL</b>을 사용합니다.</p>
-        <pre>WHERE phone IS NULL
+        <h3>2. NULL 비교 연산</h3>
+        <p><code>NULL</code>은 값이 없다는 뜻이라 <code>=</code>, <code>!=</code>, <code>&lt;&gt;</code>로 정확히 비교할 수 없습니다.</p>
+        <pre>-- 올바른 NULL 비교
+WHERE phone IS NULL
 WHERE phone IS NOT NULL</pre>
+        <p><code>!=</code>이나 <code>&lt;&gt;</code>로 데이터를 거를 때, 값이 <code>NULL</code>인 행은 비교 대상에서 제외될 수 있습니다. NULL까지 포함하려면 다음처럼 씁니다.</p>
+        <pre>WHERE phone != '5678' OR phone IS NULL;</pre>
+
+        <h3>3. LIKE 와일드카드 구분</h3>
+        <ul>
+          <li><code>_</code>: 정확히 1글자 자리</li>
+          <li><code>%</code>: 글자 수 제한 없음</li>
+        </ul>
+        <pre>WHERE name LIKE '_대%';
+-- 두 번째 글자가 '대'
+
+WHERE name LIKE '__대%';
+-- 세 번째 글자가 '대'
+
+WHERE bookname LIKE '%축구%';
+-- 앞뒤 글자 수 상관없이 '축구' 포함</pre>
       </article>
 
-      <article class="concept-card">
-        <h3>8. LIKE 와일드카드</h3>
-        <p><b>_</b>는 정확히 한 글자, <b>%</b>는 글자 수 제한 없음을 의미합니다.</p>
-        <pre>WHERE name LIKE '박%'
-WHERE bookname LIKE '%축구%'</pre>
+      <article class="concept-card wide markdown-body">
+        <h2>🧾 Markdown식 빠른 암기 노트</h2>
+        <pre># SQL 실행 순서 기억하기
+FROM / JOIN
+→ WHERE
+→ GROUP BY
+→ HAVING
+→ SELECT
+→ ORDER BY
+→ LIMIT
+
+# WHERE vs HAVING
+- WHERE: 그룹 전, 개별 행 조건
+- HAVING: 그룹 후, 집계 결과 조건
+
+# LIKE
+- '박%'   : 박으로 시작
+- '%축구%' : 축구 포함
+- '_대%'  : 두 번째 글자가 대
+
+# OUTER JOIN
+- LEFT OUTER JOIN  : 왼쪽 테이블은 전부 살림
+- RIGHT OUTER JOIN : 오른쪽 테이블은 전부 살림</pre>
       </article>
     </section>
   </main>
@@ -189,6 +308,6 @@ WHERE bookname LIKE '%축구%'</pre>
     </div>
   </dialog>
 
-  <script src="script.js?v=202607021420"></script>
+  <script src="script.js?v=202607021435"></script>
 </body>
 </html>
