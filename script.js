@@ -79,51 +79,90 @@ function buildFillBlank100(){
 
 function buildResult100(){
   const push=(stage,title,text,template,answer,hint)=>questions.push([stage,title,text,template,String(answer),hint]);
-  const items=[]; const add=(title,sql,answer,hint)=>items.push(['3유형 실행결과 맞추기',`${items.length+1}. ${title}`,'다음 SQL의 실행결과를 쓰세요.',sql,String(answer),hint]);
-  add('Book 행 수','SELECT COUNT(*) FROM Book;',10,'행 수 계산');
-  add('Orders 합계','SELECT SUM(saleprice) FROM Orders;',sum(orderRows.map(o=>o.saleprice)),'전체 합계');
-  add('평균 도서 가격','SELECT AVG(price) FROM Book;',17450,'평균');
-  add('최저 가격','SELECT MIN(price) FROM Book;',6000,'최솟값');
-  add('최고 가격','SELECT MAX(price) FROM Book;',35000,'최댓값');
-  add('굿스포츠 도서 수',"SELECT COUNT(*) FROM Book WHERE publisher = '굿스포츠';",bookRows.filter(b=>b.publisher==='굿스포츠').length,'Book.publisher 조건');
-  add('가격 10000 이상 도서 수','SELECT COUNT(*) FROM Book WHERE price >= 10000;',bookRows.filter(b=>b.price>=10000).length,'Book.price 조건');
-  add('축구 포함 도서명',"SELECT bookname FROM Book WHERE bookname LIKE '%축구%';",bookNames(bookRows.filter(b=>b.bookname.includes('축구')))||'없음','Book.bookname LIKE');
-  add('박으로 시작하는 고객명',"SELECT name FROM Customer WHERE name LIKE '박%';",custNames(customerRows.filter(c=>c.name.startsWith('박'))),'Customer.name LIKE');
-  add('전화번호 NULL 고객','SELECT name FROM Customer WHERE phone IS NULL;','박세리','Customer.phone NULL');
-  add('2020-07-03 주문 수',"SELECT COUNT(*) FROM Orders WHERE orderdate = '2020-07-03';",orderRows.filter(o=>o.orderdate==='2020-07-03').length,'Orders.orderdate 조건');
-  add('판매가 10000~20000 주문 수','SELECT COUNT(*) FROM Orders WHERE saleprice BETWEEN 10000 AND 20000;',orderRows.filter(o=>o.saleprice>=10000&&o.saleprice<=20000).length,'Orders.saleprice BETWEEN');
-  add('주문 고객 종류','SELECT COUNT(DISTINCT custid) FROM Orders;',uniq(orderRows.map(o=>o.custid)).length,'Orders.custid DISTINCT');
-  add('주문 도서 종류','SELECT COUNT(DISTINCT bookid) FROM Orders;',uniq(orderRows.map(o=>o.bookid)).length,'Orders.bookid DISTINCT');
-  add('최근 주문일','SELECT MAX(orderdate) FROM Orders;','2020-07-10','Orders.orderdate MAX');
-  add('가장 비싼 도서명','SELECT bookname FROM Book ORDER BY price DESC LIMIT 1;','골프 바이블','Book ORDER BY LIMIT');
-  add('가장 낮은 판매가','SELECT MIN(saleprice) FROM Orders;',6000,'Orders.saleprice MIN');
-  add('주문 3개 이상 고객번호','SELECT custid FROM Orders GROUP BY custid HAVING COUNT(*) >= 3;','1, 3','GROUP BY HAVING');
-  add('주문 없는 고객',"SELECT name FROM Customer WHERE NOT EXISTS (SELECT * FROM Orders WHERE Orders.custid = Customer.custid);",'박세리','NOT EXISTS');
-  add('주문 없는 도서',"SELECT bookname FROM Book WHERE NOT EXISTS (SELECT * FROM Orders WHERE Orders.bookid = Book.bookid);",'골프 바이블, 올림픽 이야기','NOT EXISTS');
-  add('주문 1번 고객명','SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid WHERE Orders.orderid=1;',cust(1).name,'JOIN + orderid 조건');
-  add('축구의 이해 주문 고객',"SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid JOIN Book ON Orders.bookid=Book.bookid WHERE Book.bookname='축구의 이해';",'박지성','JOIN + bookname 조건');
-  add('2020-07-07 주문 도서명',"SELECT Book.bookname FROM Book JOIN Orders ON Book.bookid=Orders.bookid WHERE Orders.orderdate='2020-07-07';",'축구 아는 여자, 야구를 부탁해','JOIN + orderdate 조건');
-  add('LEFT JOIN 고객 수','SELECT COUNT(*) FROM Customer LEFT OUTER JOIN Orders ON Customer.custid=Orders.custid;',11,'LEFT JOIN은 박세리 1행까지 포함합니다.');
-  add('RIGHT JOIN 주문 수','SELECT COUNT(*) FROM Customer RIGHT OUTER JOIN Orders ON Customer.custid=Orders.custid;',10,'RIGHT JOIN 기준 Orders는 10행입니다.');
-  add('출판사별 주문 고객 종류','SELECT Book.publisher, COUNT(DISTINCT Orders.custid) FROM Book JOIN Orders ON Book.bookid=Orders.bookid GROUP BY Book.publisher ORDER BY Book.publisher ASC;','Pearson 2, 굿스포츠 3, 나무수 1, 대한미디어 1, 이상미디어 2','출판사별 DISTINCT 집계');
-  const adv=[
-    ['총액 30000 이상 고객',"SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid GROUP BY Customer.custid, Customer.name HAVING SUM(Orders.saleprice)>=30000;",'박지성, 추신수','JOIN+HAVING'],
-    ['주문 3개 이상 고객',"SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid GROUP BY Customer.custid, Customer.name HAVING COUNT(*)>=3;",'박지성, 장미란','COUNT HAVING'],
-    ['최고 매출 고객',"SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid GROUP BY Customer.custid, Customer.name ORDER BY SUM(Orders.saleprice) DESC LIMIT 1;",'박지성','정렬 LIMIT'],
-    ['LEFT JOIN 주문없는 고객수',"SELECT COUNT(*) FROM Customer LEFT OUTER JOIN Orders ON Customer.custid=Orders.custid WHERE Orders.orderid IS NULL;",'1','LEFT OUTER JOIN'],
-    ['평균보다 비싼 주문 수',"SELECT COUNT(*) FROM Orders WHERE saleprice > (SELECT AVG(saleprice) FROM Orders);",'5','서브쿼리'],
-    ['할인 주문 수',"SELECT COUNT(*) FROM Orders JOIN Book ON Orders.bookid=Book.bookid WHERE Orders.saleprice < Book.price;",'6','JOIN 후 비교'],
-    ['축구 주문 고객',"SELECT DISTINCT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid JOIN Book ON Orders.bookid=Book.bookid WHERE Book.bookname LIKE '%축구%';",'박지성','LIKE+JOIN'],
-    ['야구 주문 고객',"SELECT DISTINCT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid JOIN Book ON Orders.bookid=Book.bookid WHERE Book.bookname LIKE '%야구%';",'추신수, 장미란','LIKE+JOIN'],
-    ['주문 없는 도서 수',"SELECT COUNT(*) FROM Book LEFT OUTER JOIN Orders ON Book.bookid=Orders.bookid WHERE Orders.orderid IS NULL;",'2','LEFT JOIN+NULL'],
-    ['총액 최고 고객번호',"SELECT custid FROM Orders GROUP BY custid ORDER BY SUM(saleprice) DESC LIMIT 1;",'1','GROUP+ORDER+LIMIT'],
-    ['평균가격 이상 도서 수',"SELECT COUNT(*) FROM Book WHERE price >= (SELECT AVG(price) FROM Book);",'3','서브쿼리 평균'],
-    ['두 번 주문된 도서번호',"SELECT bookid FROM Orders GROUP BY bookid HAVING COUNT(*) = 2;",'8, 10','HAVING'],
-    ['굿스포츠 매출',"SELECT SUM(Orders.saleprice) FROM Book JOIN Orders ON Book.bookid=Orders.bookid WHERE Book.publisher='굿스포츠';",'20000','JOIN+WHERE+SUM'],
-    ['가장 비싼 주문 도서명',"SELECT Book.bookname FROM Book JOIN Orders ON Book.bookid=Orders.bookid ORDER BY Orders.saleprice DESC LIMIT 1;",'축구의 이해','ORDER BY LIMIT'],
-    ['전화번호 있는 고객 수',"SELECT COUNT(*) FROM Customer WHERE phone IS NOT NULL;",'4','IS NOT NULL']
+  const items=[];
+  const add=(stage,title,sql,answer,hint)=>items.push([stage,`${items.length+1}. ${title}`,'다음 SQL의 실행결과를 쓰세요.',sql,String(answer),hint]);
+
+  // 1~10: 쉬움 - 단일 테이블 기본 결과
+  add('3유형 실행결과 맞추기 1~10 쉬움','Book 행 수','SELECT COUNT(*) FROM Book;',10,'행 수 계산');
+  add('3유형 실행결과 맞추기 1~10 쉬움','Customer 행 수','SELECT COUNT(*) FROM Customer;',5,'행 수 계산');
+  add('3유형 실행결과 맞추기 1~10 쉬움','Orders 행 수','SELECT COUNT(*) FROM Orders;',10,'행 수 계산');
+  add('3유형 실행결과 맞추기 1~10 쉬움','최저 도서 가격','SELECT MIN(price) FROM Book;',6000,'MIN');
+  add('3유형 실행결과 맞추기 1~10 쉬움','최고 도서 가격','SELECT MAX(price) FROM Book;',35000,'MAX');
+  add('3유형 실행결과 맞추기 1~10 쉬움','전체 판매 합계','SELECT SUM(saleprice) FROM Orders;',118000,'SUM');
+  add('3유형 실행결과 맞추기 1~10 쉬움','평균 도서 가격','SELECT AVG(price) FROM Book;',17450,'AVG');
+  add('3유형 실행결과 맞추기 1~10 쉬움','중복 없는 출판사 수','SELECT COUNT(DISTINCT publisher) FROM Book;',6,'DISTINCT');
+  add('3유형 실행결과 맞추기 1~10 쉬움','가장 낮은 판매가','SELECT MIN(saleprice) FROM Orders;',6000,'MIN');
+  add('3유형 실행결과 맞추기 1~10 쉬움','최근 주문일','SELECT MAX(orderdate) FROM Orders;','2020-07-10','MAX 날짜');
+
+  // 11~30: 조금 어려움 - WHERE, LIKE, BETWEEN, NULL, DISTINCT
+  add('3유형 실행결과 맞추기 11~30 조건','굿스포츠 도서 수',"SELECT COUNT(*) FROM Book WHERE publisher = '굿스포츠';",3,'문자 조건');
+  add('3유형 실행결과 맞추기 11~30 조건','가격 10000 이상 도서 수','SELECT COUNT(*) FROM Book WHERE price >= 10000;',6,'비교 조건');
+  add('3유형 실행결과 맞추기 11~30 조건','가격 10000~20000 도서 수','SELECT COUNT(*) FROM Book WHERE price BETWEEN 10000 AND 20000;',4,'BETWEEN');
+  add('3유형 실행결과 맞추기 11~30 조건','축구 포함 도서명',"SELECT bookname FROM Book WHERE bookname LIKE '%축구%';",'축구의 역사, 축구 아는 여자, 축구의 이해','LIKE 포함');
+  add('3유형 실행결과 맞추기 11~30 조건','박으로 시작 고객명',"SELECT name FROM Customer WHERE name LIKE '박%';",'박지성, 박세리','LIKE 시작');
+  add('3유형 실행결과 맞추기 11~30 조건','전화번호 NULL 고객','SELECT name FROM Customer WHERE phone IS NULL;','박세리','IS NULL');
+  add('3유형 실행결과 맞추기 11~30 조건','전화번호 있는 고객 수','SELECT COUNT(*) FROM Customer WHERE phone IS NOT NULL;',4,'IS NOT NULL');
+  add('3유형 실행결과 맞추기 11~30 조건','2020-07-03 주문 수',"SELECT COUNT(*) FROM Orders WHERE orderdate = '2020-07-03';",2,'날짜 조건');
+  add('3유형 실행결과 맞추기 11~30 조건','판매가 10000~20000 주문 수','SELECT COUNT(*) FROM Orders WHERE saleprice BETWEEN 10000 AND 20000;',5,'BETWEEN');
+  add('3유형 실행결과 맞추기 11~30 조건','주문 고객 종류','SELECT COUNT(DISTINCT custid) FROM Orders;',4,'DISTINCT');
+  add('3유형 실행결과 맞추기 11~30 조건','주문 도서 종류','SELECT COUNT(DISTINCT bookid) FROM Orders;',8,'DISTINCT');
+  add('3유형 실행결과 맞추기 11~30 조건','야구 포함 도서명',"SELECT bookname FROM Book WHERE bookname LIKE '%야구%';",'야구의 추억, 야구를 부탁해','LIKE');
+  add('3유형 실행결과 맞추기 11~30 조건','Olympic 포함 도서명',"SELECT bookname FROM Book WHERE bookname LIKE '%Olympic%';",'Olympic Champions','LIKE 영문');
+  add('3유형 실행결과 맞추기 11~30 조건','출판사 IN 도서 수',"SELECT COUNT(*) FROM Book WHERE publisher IN ('굿스포츠', '대한미디어');",5,'IN');
+  add('3유형 실행결과 맞추기 11~30 조건','축구 제외 도서 수',"SELECT COUNT(*) FROM Book WHERE bookname NOT LIKE '%축구%';",7,'NOT LIKE');
+  add('3유형 실행결과 맞추기 11~30 조건','가격 내림차순 첫 도서','SELECT bookname FROM Book ORDER BY price DESC LIMIT 1;','골프 바이블','ORDER BY LIMIT');
+  add('3유형 실행결과 맞추기 11~30 조건','판매가 내림차순 첫 주문번호','SELECT orderid FROM Orders ORDER BY saleprice DESC LIMIT 1;',2,'ORDER BY LIMIT');
+  add('3유형 실행결과 맞추기 11~30 조건','굿스포츠 매출',"SELECT SUM(Orders.saleprice) FROM Book JOIN Orders ON Book.bookid=Orders.bookid WHERE Book.publisher='굿스포츠';",20000,'쉬운 JOIN+SUM');
+  add('3유형 실행결과 맞추기 11~30 조건','평균 이상 도서 수','SELECT COUNT(*) FROM Book WHERE price >= (SELECT AVG(price) FROM Book);',3,'쉬운 서브쿼리');
+  add('3유형 실행결과 맞추기 11~30 조건','주문 없는 고객','SELECT name FROM Customer WHERE phone IS NULL;','박세리','조건 결과');
+
+  // 31~50: 중급 - GROUP BY/HAVING, 단순 JOIN
+  const mid=[
+    ['고객별 주문 수','SELECT custid, COUNT(*) FROM Orders GROUP BY custid;','1 3, 2 2, 3 3, 4 2','GROUP BY'],
+    ['고객별 총액','SELECT custid, SUM(saleprice) FROM Orders GROUP BY custid;','1 39000, 2 15000, 3 31000, 4 33000','GROUP BY SUM'],
+    ['주문 3개 이상 고객','SELECT custid FROM Orders GROUP BY custid HAVING COUNT(*) >= 3;','1, 3','HAVING'],
+    ['도서별 두 번 주문','SELECT bookid FROM Orders GROUP BY bookid HAVING COUNT(*) = 2;','8, 10','HAVING'],
+    ['날짜별 주문 수 2개 이상',"SELECT orderdate FROM Orders GROUP BY orderdate HAVING COUNT(*) >= 2;",'2020-07-03, 2020-07-07','GROUP BY 날짜'],
+    ['주문 1번 고객명','SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid WHERE Orders.orderid=1;','박지성','JOIN'],
+    ['축구의 이해 주문 고객',"SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid JOIN Book ON Orders.bookid=Book.bookid WHERE Book.bookname='축구의 이해';",'박지성','3테이블 JOIN'],
+    ['2020-07-07 주문 도서명',"SELECT Book.bookname FROM Book JOIN Orders ON Book.bookid=Orders.bookid WHERE Orders.orderdate='2020-07-07';",'축구 아는 여자, 야구를 부탁해','JOIN 날짜'],
+    ['주문 없는 고객 NOT EXISTS',"SELECT name FROM Customer WHERE NOT EXISTS (SELECT * FROM Orders WHERE Orders.custid = Customer.custid);",'박세리','NOT EXISTS'],
+    ['주문 없는 도서 NOT EXISTS',"SELECT bookname FROM Book WHERE NOT EXISTS (SELECT * FROM Orders WHERE Orders.bookid = Book.bookid);",'골프 바이블, 올림픽 이야기','NOT EXISTS']
   ];
-  while(items.length<100){ const a=adv[items.length%adv.length]; add(`${a[0]} ${items.length+1}`,a[1],a[2],a[3]); }
+  mid.forEach(x=>add('3유형 실행결과 맞추기 31~50 중급',...x));
+  mid.forEach(x=>add('3유형 실행결과 맞추기 31~50 중급',`${x[0]} 복습`,x[1],x[2],x[3]));
+
+  // 51~70: 어려움 - JOIN + GROUP + OUTER JOIN
+  const hard=[
+    ['LEFT JOIN 고객 수','SELECT COUNT(*) FROM Customer LEFT OUTER JOIN Orders ON Customer.custid=Orders.custid;',11,'LEFT OUTER JOIN'],
+    ['RIGHT JOIN 주문 수','SELECT COUNT(*) FROM Customer RIGHT OUTER JOIN Orders ON Customer.custid=Orders.custid;',10,'RIGHT OUTER JOIN'],
+    ['주문 없는 고객 수','SELECT COUNT(*) FROM Customer LEFT OUTER JOIN Orders ON Customer.custid=Orders.custid WHERE Orders.orderid IS NULL;',1,'LEFT JOIN NULL'],
+    ['주문 없는 도서 수','SELECT COUNT(*) FROM Book LEFT OUTER JOIN Orders ON Book.bookid=Orders.bookid WHERE Orders.orderid IS NULL;',2,'LEFT JOIN NULL'],
+    ['총액 30000 이상 고객',"SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid GROUP BY Customer.custid, Customer.name HAVING SUM(Orders.saleprice)>=30000;",'박지성, 장미란, 추신수','JOIN HAVING'],
+    ['주문 3개 이상 고객명',"SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid GROUP BY Customer.custid, Customer.name HAVING COUNT(*)>=3;",'박지성, 장미란','JOIN HAVING'],
+    ['최고 매출 고객',"SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid GROUP BY Customer.custid, Customer.name ORDER BY SUM(Orders.saleprice) DESC LIMIT 1;",'박지성','GROUP ORDER LIMIT'],
+    ['축구 주문 고객',"SELECT DISTINCT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid JOIN Book ON Orders.bookid=Book.bookid WHERE Book.bookname LIKE '%축구%';",'박지성','LIKE JOIN'],
+    ['야구 주문 고객',"SELECT DISTINCT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid JOIN Book ON Orders.bookid=Book.bookid WHERE Book.bookname LIKE '%야구%';",'추신수, 장미란','LIKE JOIN'],
+    ['출판사별 주문 고객 종류',"SELECT Book.publisher, COUNT(DISTINCT Orders.custid) FROM Book JOIN Orders ON Book.bookid=Orders.bookid GROUP BY Book.publisher ORDER BY Book.publisher ASC;",'Pearson 2, 굿스포츠 3, 나무수 1, 대한미디어 1, 이상미디어 2','DISTINCT GROUP']
+  ];
+  hard.forEach(x=>add('3유형 실행결과 맞추기 51~70 어려움',...x));
+  hard.forEach(x=>add('3유형 실행결과 맞추기 51~70 어려움',`${x[0]} 응용`,x[1],x[2],x[3]));
+
+  // 71~100: 최종 - 서브쿼리/계산식/종합
+  const final=[
+    ['평균보다 비싼 주문 수','SELECT COUNT(*) FROM Orders WHERE saleprice > (SELECT AVG(saleprice) FROM Orders);',5,'서브쿼리'],
+    ['할인 주문 수','SELECT COUNT(*) FROM Orders JOIN Book ON Orders.bookid=Book.bookid WHERE Orders.saleprice < Book.price;',6,'JOIN 비교'],
+    ['평균가격 이상 도서 수','SELECT COUNT(*) FROM Book WHERE price >= (SELECT AVG(price) FROM Book);',3,'서브쿼리'],
+    ['총액 최고 고객번호','SELECT custid FROM Orders GROUP BY custid ORDER BY SUM(saleprice) DESC LIMIT 1;',1,'GROUP ORDER LIMIT'],
+    ['가장 비싼 주문 도서명','SELECT Book.bookname FROM Book JOIN Orders ON Book.bookid=Orders.bookid ORDER BY Orders.saleprice DESC LIMIT 1;','축구의 이해','JOIN ORDER LIMIT'],
+    ['출판사별 최고 매출 출판사',"SELECT Book.publisher FROM Book JOIN Orders ON Book.bookid=Orders.bookid GROUP BY Book.publisher ORDER BY SUM(Orders.saleprice) DESC LIMIT 1;",'이상미디어','GROUP ORDER LIMIT'],
+    ['평균 주문금액 이상 고객',"SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid GROUP BY Customer.custid, Customer.name HAVING AVG(Orders.saleprice) >= (SELECT AVG(saleprice) FROM Orders);",'박지성, 추신수','HAVING 서브쿼리'],
+    ['할인액 1000 이상 주문 수','SELECT COUNT(*) FROM Orders JOIN Book ON Orders.bookid=Book.bookid WHERE Book.price - Orders.saleprice >= 1000;',4,'계산식 WHERE'],
+    ['주문 없는 도서명 LEFT',"SELECT Book.bookname FROM Book LEFT OUTER JOIN Orders ON Book.bookid=Orders.bookid WHERE Orders.orderid IS NULL;",'골프 바이블, 올림픽 이야기','OUTER JOIN'],
+    ['최종 고객별 통계 1위',"SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid GROUP BY Customer.custid, Customer.name ORDER BY COUNT(*) DESC, SUM(Orders.saleprice) DESC LIMIT 1;",'박지성','복수 정렬']
+  ];
+  for(let i=0;i<30;i++){ const x=final[i%final.length]; add('3유형 실행결과 맞추기 71~100 최종',`${x[0]} ${71+i}`,x[1],x[2],x[3]); }
+
   items.slice(0,100).forEach(x=>push(...x));
 }
 
