@@ -201,52 +201,81 @@ function buildResult100(){
   add('3유형 실행결과 맞추기 11~30 조건','판매가 10000 미만 주문 수','SELECT COUNT(*) FROM Orders WHERE saleprice < 10000;',4,'COUNT(*)는 중복을 제거하지 않고 조건에 맞는 행을 모두 셉니다. 6000, 8000, 6000, 7000 총 4건입니다.');
   add('3유형 실행결과 맞추기 11~30 조건','출판사 오름차순 첫 값','SELECT publisher FROM Book ORDER BY publisher ASC LIMIT 1;','굿스포츠','ASC는 오름차순입니다. 한글 가나다 기준으로 보면 굿스포츠가 먼저입니다. 단, DB의 문자 정렬 규칙이 영문을 먼저 두는 경우 Pearson도 나올 수 있어 함께 정답 처리합니다.',['Pearson']);
 
-  // 31~50: 중급 - GROUP BY/HAVING, 단순 JOIN
-  const mid=[
-    ['고객별 주문 수','SELECT custid, COUNT(*) FROM Orders GROUP BY custid;','1 3, 2 2, 3 3, 4 2','GROUP BY'],
-    ['고객별 총액','SELECT custid, SUM(saleprice) FROM Orders GROUP BY custid;','1 39000, 2 15000, 3 31000, 4 33000','GROUP BY SUM'],
-    ['주문 3개 이상 고객','SELECT custid FROM Orders GROUP BY custid HAVING COUNT(*) >= 3;','1, 3','HAVING'],
-    ['도서별 두 번 주문','SELECT bookid FROM Orders GROUP BY bookid HAVING COUNT(*) = 2;','8, 10','HAVING'],
-    ['날짜별 주문 수 2개 이상',"SELECT orderdate FROM Orders GROUP BY orderdate HAVING COUNT(*) >= 2;",'2020-07-03, 2020-07-07','GROUP BY 날짜'],
-    ['주문 1번 고객명','SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid WHERE Orders.orderid=1;','박지성','JOIN'],
-    ['축구의 이해 주문 고객',"SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid JOIN Book ON Orders.bookid=Book.bookid WHERE Book.bookname='축구의 이해';",'박지성','3테이블 JOIN'],
-    ['2020-07-07 주문 도서명',"SELECT Book.bookname FROM Book JOIN Orders ON Book.bookid=Orders.bookid WHERE Orders.orderdate='2020-07-07';",'축구 아는 여자, 야구를 부탁해','JOIN 날짜'],
-    ['주문 없는 고객 NOT EXISTS',"SELECT name FROM Customer WHERE NOT EXISTS (SELECT * FROM Orders WHERE Orders.custid = Customer.custid);",'박세리','NOT EXISTS'],
-    ['주문 없는 도서 NOT EXISTS',"SELECT bookname FROM Book WHERE NOT EXISTS (SELECT * FROM Orders WHERE Orders.bookid = Book.bookid);",'골프 바이블, 올림픽 이야기','NOT EXISTS']
+  // 31~100: 반복 제거 - 60번 이후는 90~100 수준 고난도
+  const resultAdvanced = [
+    ["고객별 주문 수", "SELECT custid, COUNT(*) FROM Orders GROUP BY custid ORDER BY custid;", "1 3, 2 2, 3 3, 4 2", "실제 테이블 기준 계산 결과입니다."],
+    ["고객별 총액", "SELECT custid, SUM(saleprice) FROM Orders GROUP BY custid ORDER BY custid;", "1 39000, 2 15000, 3 31000, 4 33000", "실제 테이블 기준 계산 결과입니다."],
+    ["주문 3개 이상 고객", "SELECT custid FROM Orders GROUP BY custid HAVING COUNT(*) >= 3 ORDER BY custid;", "1, 3", "실제 테이블 기준 계산 결과입니다."],
+    ["도서별 두 번 주문", "SELECT bookid FROM Orders GROUP BY bookid HAVING COUNT(*) = 2 ORDER BY bookid;", "8, 10", "실제 테이블 기준 계산 결과입니다."],
+    ["날짜별 주문 수 2개 이상", "SELECT orderdate FROM Orders GROUP BY orderdate HAVING COUNT(*) >= 2 ORDER BY orderdate;", "2020-07-03, 2020-07-07", "실제 테이블 기준 계산 결과입니다."],
+    ["주문 1번 고객명", "SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid WHERE Orders.orderid=1;", "박지성", "실제 테이블 기준 계산 결과입니다."],
+    ["축구의 이해 주문 고객", "SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid JOIN Book ON Orders.bookid=Book.bookid WHERE Book.bookname='축구의 이해';", "박지성", "실제 테이블 기준 계산 결과입니다."],
+    ["2020-07-07 주문 도서명", "SELECT Book.bookname FROM Book JOIN Orders ON Book.bookid=Orders.bookid WHERE Orders.orderdate='2020-07-07' ORDER BY Orders.orderid;", "축구 아는 여자, 야구를 부탁해", "실제 테이블 기준 계산 결과입니다."],
+    ["주문 없는 고객 NOT EXISTS", "SELECT name FROM Customer WHERE NOT EXISTS (SELECT * FROM Orders WHERE Orders.custid = Customer.custid);", "박세리", "실제 테이블 기준 계산 결과입니다."],
+    ["주문 없는 도서 NOT EXISTS", "SELECT bookname FROM Book WHERE NOT EXISTS (SELECT * FROM Orders WHERE Orders.bookid = Book.bookid) ORDER BY bookid;", "골프 바이블, 올림픽 이야기", "실제 테이블 기준 계산 결과입니다."],
+    ["고객별 평균 주문금액", "SELECT custid, AVG(saleprice) FROM Orders GROUP BY custid ORDER BY custid;", "1 13000, 2 7500, 3 10333.333333333334, 4 16500", "실제 테이블 기준 계산 결과입니다."],
+    ["고객별 최고 주문금액", "SELECT custid, MAX(saleprice) FROM Orders GROUP BY custid ORDER BY custid;", "1 21000, 2 8000, 3 13000, 4 20000", "실제 테이블 기준 계산 결과입니다."],
+    ["고객별 최저 주문금액", "SELECT custid, MIN(saleprice) FROM Orders GROUP BY custid ORDER BY custid;", "1 6000, 2 7000, 3 6000, 4 13000", "실제 테이블 기준 계산 결과입니다."],
+    ["주문 수 2개 고객", "SELECT custid FROM Orders GROUP BY custid HAVING COUNT(*) = 2 ORDER BY custid;", "2, 4", "실제 테이블 기준 계산 결과입니다."],
+    ["총액 30000 이상 고객번호", "SELECT custid FROM Orders GROUP BY custid HAVING SUM(saleprice) >= 30000 ORDER BY custid;", "1, 3, 4", "실제 테이블 기준 계산 결과입니다."],
+    ["도서별 주문 수", "SELECT bookid, COUNT(*) FROM Orders GROUP BY bookid ORDER BY bookid;", "1 1, 2 1, 3 1, 5 1, 6 1, 7 1, 8 2, 10 2", "실제 테이블 기준 계산 결과입니다."],
+    ["판매가격별 주문 수", "SELECT saleprice, COUNT(*) FROM Orders GROUP BY saleprice ORDER BY saleprice;", "6000 2, 7000 1, 8000 1, 12000 2, 13000 2, 20000 1, 21000 1", "실제 테이블 기준 계산 결과입니다."],
+    ["날짜별 판매 합계", "SELECT orderdate, SUM(saleprice) FROM Orders GROUP BY orderdate ORDER BY orderdate;", "2020-07-01 6000, 2020-07-03 29000, 2020-07-04 6000, 2020-07-05 20000, 2020-07-07 25000, 2020-07-08 12000, 2020-07-09 7000, 2020-07-10 13000", "실제 테이블 기준 계산 결과입니다."],
+    ["가장 많이 주문한 고객번호", "SELECT custid FROM Orders GROUP BY custid ORDER BY COUNT(*) DESC, custid ASC LIMIT 1;", "1", "실제 테이블 기준 계산 결과입니다."],
+    ["총액 1위 고객번호", "SELECT custid FROM Orders GROUP BY custid ORDER BY SUM(saleprice) DESC LIMIT 1;", "1", "실제 테이블 기준 계산 결과입니다."],
+    ["LEFT JOIN 고객 수", "SELECT COUNT(*) FROM Customer LEFT OUTER JOIN Orders ON Customer.custid=Orders.custid;", "11", "실제 테이블 기준 계산 결과입니다."],
+    ["RIGHT JOIN 주문 수", "SELECT COUNT(*) FROM Customer RIGHT OUTER JOIN Orders ON Customer.custid=Orders.custid;", "10", "실제 테이블 기준 계산 결과입니다."],
+    ["주문 없는 고객 수", "SELECT COUNT(*) FROM Customer LEFT OUTER JOIN Orders ON Customer.custid=Orders.custid WHERE Orders.orderid IS NULL;", "1", "실제 테이블 기준 계산 결과입니다."],
+    ["주문 없는 도서 수", "SELECT COUNT(*) FROM Book LEFT OUTER JOIN Orders ON Book.bookid=Orders.bookid WHERE Orders.orderid IS NULL;", "2", "실제 테이블 기준 계산 결과입니다."],
+    ["총액 30000 이상 고객명", "SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid GROUP BY Customer.custid, Customer.name HAVING SUM(Orders.saleprice)>=30000 ORDER BY Customer.custid;", "박지성, 장미란, 추신수", "실제 테이블 기준 계산 결과입니다."],
+    ["주문 3개 이상 고객명", "SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid GROUP BY Customer.custid, Customer.name HAVING COUNT(*)>=3 ORDER BY Customer.custid;", "박지성, 장미란", "실제 테이블 기준 계산 결과입니다."],
+    ["최고 매출 고객", "SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid GROUP BY Customer.custid, Customer.name ORDER BY SUM(Orders.saleprice) DESC LIMIT 1;", "박지성", "실제 테이블 기준 계산 결과입니다."],
+    ["축구 주문 고객", "SELECT DISTINCT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid JOIN Book ON Orders.bookid=Book.bookid WHERE Book.bookname LIKE '%축구%' ORDER BY Customer.custid;", "박지성", "실제 테이블 기준 계산 결과입니다."],
+    ["야구 주문 고객", "SELECT DISTINCT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid JOIN Book ON Orders.bookid=Book.bookid WHERE Book.bookname LIKE '%야구%' ORDER BY Customer.custid;", "장미란, 추신수", "실제 테이블 기준 계산 결과입니다."],
+    ["출판사별 주문 고객 종류", "SELECT Book.publisher, COUNT(DISTINCT Orders.custid) FROM Book JOIN Orders ON Book.bookid=Orders.bookid GROUP BY Book.publisher ORDER BY MIN(Book.bookid);", "굿스포츠 3, 나무수 1, 대한미디어 1, 이상미디어 2, Pearson 2", "실제 테이블 기준 계산 결과입니다."],
+    ["고객별 주문 수 LEFT", "SELECT Customer.name, COUNT(Orders.orderid) FROM Customer LEFT OUTER JOIN Orders ON Customer.custid=Orders.custid GROUP BY Customer.custid, Customer.name ORDER BY Customer.custid;", "박지성 3, 김연아 2, 장미란 3, 추신수 2, 박세리 0", "실제 테이블 기준 계산 결과입니다."],
+    ["도서별 주문 수 LEFT", "SELECT Book.bookname, COUNT(Orders.orderid) FROM Book LEFT OUTER JOIN Orders ON Book.bookid=Orders.bookid GROUP BY Book.bookid, Book.bookname ORDER BY Book.bookid;", "축구의 역사 1, 축구 아는 여자 1, 축구의 이해 1, 골프 바이블 0, 피겨 교본 1, 역도 단계별기술 1, 야구의 추억 1, 야구를 부탁해 2, 올림픽 이야기 0, Olympic Champions 2", "실제 테이블 기준 계산 결과입니다."],
+    ["주문 없는 고객명 LEFT", "SELECT Customer.name FROM Customer LEFT OUTER JOIN Orders ON Customer.custid=Orders.custid WHERE Orders.orderid IS NULL;", "박세리", "실제 테이블 기준 계산 결과입니다."],
+    ["주문 없는 도서명 LEFT", "SELECT Book.bookname FROM Book LEFT OUTER JOIN Orders ON Book.bookid=Orders.bookid WHERE Orders.orderid IS NULL ORDER BY Book.bookid;", "골프 바이블, 올림픽 이야기", "실제 테이블 기준 계산 결과입니다."],
+    ["고객별 총액 내림차순", "SELECT Customer.name, SUM(Orders.saleprice) FROM Customer JOIN Orders ON Customer.custid=Orders.custid GROUP BY Customer.custid, Customer.name ORDER BY SUM(Orders.saleprice) DESC;", "박지성 39000, 추신수 33000, 장미란 31000, 김연아 15000", "실제 테이블 기준 계산 결과입니다."],
+    ["고객별 평균 내림차순", "SELECT Customer.name, AVG(Orders.saleprice) FROM Customer JOIN Orders ON Customer.custid=Orders.custid GROUP BY Customer.custid, Customer.name ORDER BY AVG(Orders.saleprice) DESC;", "추신수 16500, 박지성 13000, 장미란 10333.333333333334, 김연아 7500", "실제 테이블 기준 계산 결과입니다."],
+    ["도서별 매출 합계", "SELECT Book.bookname, SUM(Orders.saleprice) FROM Book JOIN Orders ON Book.bookid=Orders.bookid GROUP BY Book.bookid, Book.bookname ORDER BY Book.bookid;", "축구의 역사 6000, 축구 아는 여자 12000, 축구의 이해 21000, 피겨 교본 8000, 역도 단계별기술 6000, 야구의 추억 20000, 야구를 부탁해 26000, Olympic Champions 19000", "실제 테이블 기준 계산 결과입니다."],
+    ["출판사별 매출 합계", "SELECT Book.publisher, SUM(Orders.saleprice) FROM Book JOIN Orders ON Book.bookid=Orders.bookid GROUP BY Book.publisher ORDER BY MIN(Book.bookid);", "굿스포츠 20000, 나무수 12000, 대한미디어 21000, 이상미디어 46000, Pearson 19000", "실제 테이블 기준 계산 결과입니다."],
+    ["판매가 10000 이상 고객 종류", "SELECT COUNT(DISTINCT custid) FROM Orders WHERE saleprice >= 10000;", "3", "실제 테이블 기준 계산 결과입니다."],
+    ["판매가 10000 이상 도서 종류", "SELECT COUNT(DISTINCT bookid) FROM Orders WHERE saleprice >= 10000;", "5", "실제 테이블 기준 계산 결과입니다."],
+    ["평균보다 비싼 주문 수", "SELECT COUNT(*) FROM Orders WHERE saleprice > (SELECT AVG(saleprice) FROM Orders);", "6", "실제 테이블 기준 계산 결과입니다."],
+    ["할인 주문 수", "SELECT COUNT(*) FROM Orders JOIN Book ON Orders.bookid=Book.bookid WHERE Orders.saleprice < Book.price;", "5", "실제 테이블 기준 계산 결과입니다."],
+    ["평균가격 이상 도서 수", "SELECT COUNT(*) FROM Book WHERE price >= (SELECT AVG(price) FROM Book);", "3", "실제 테이블 기준 계산 결과입니다."],
+    ["총액 최고 고객번호", "SELECT custid FROM Orders GROUP BY custid ORDER BY SUM(saleprice) DESC LIMIT 1;", "1", "실제 테이블 기준 계산 결과입니다."],
+    ["가장 비싼 주문 도서명", "SELECT Book.bookname FROM Book JOIN Orders ON Book.bookid=Orders.bookid ORDER BY Orders.saleprice DESC LIMIT 1;", "축구의 이해", "실제 테이블 기준 계산 결과입니다."],
+    ["출판사별 최고 매출 출판사", "SELECT Book.publisher FROM Book JOIN Orders ON Book.bookid=Orders.bookid GROUP BY Book.publisher ORDER BY SUM(Orders.saleprice) DESC LIMIT 1;", "이상미디어", "실제 테이블 기준 계산 결과입니다."],
+    ["평균 주문금액 이상 고객", "SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid GROUP BY Customer.custid, Customer.name HAVING AVG(Orders.saleprice) >= (SELECT AVG(saleprice) FROM Orders) ORDER BY Customer.custid;", "박지성, 추신수", "실제 테이블 기준 계산 결과입니다."],
+    ["할인액 1000 이상 주문 수", "SELECT COUNT(*) FROM Orders JOIN Book ON Orders.bookid=Book.bookid WHERE Book.price - Orders.saleprice >= 1000;", "5", "실제 테이블 기준 계산 결과입니다."],
+    ["주문 없는 도서명 LEFT 최종", "SELECT Book.bookname FROM Book LEFT OUTER JOIN Orders ON Book.bookid=Orders.bookid WHERE Orders.orderid IS NULL ORDER BY Book.bookid;", "골프 바이블, 올림픽 이야기", "실제 테이블 기준 계산 결과입니다."],
+    ["최종 고객별 통계 1위", "SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid GROUP BY Customer.custid, Customer.name ORDER BY COUNT(*) DESC, SUM(Orders.saleprice) DESC LIMIT 1;", "박지성", "실제 테이블 기준 계산 결과입니다."],
+    ["평균보다 비싼 도서명", "SELECT bookname FROM Book WHERE price > (SELECT AVG(price) FROM Book) ORDER BY price;", "야구의 추억, 축구의 이해, 골프 바이블", "실제 테이블 기준 계산 결과입니다."],
+    ["최고가 도서명", "SELECT bookname FROM Book WHERE price = (SELECT MAX(price) FROM Book);", "골프 바이블", "실제 테이블 기준 계산 결과입니다."],
+    ["최저가 도서명", "SELECT bookname FROM Book WHERE price = (SELECT MIN(price) FROM Book);", "역도 단계별기술", "실제 테이블 기준 계산 결과입니다."],
+    ["최근 주문 고객명", "SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid WHERE Orders.orderdate = (SELECT MAX(orderdate) FROM Orders);", "장미란", "실제 테이블 기준 계산 결과입니다."],
+    ["최근 주문 도서명", "SELECT Book.bookname FROM Book JOIN Orders ON Book.bookid=Orders.bookid WHERE Orders.orderdate = (SELECT MAX(orderdate) FROM Orders);", "야구를 부탁해", "실제 테이블 기준 계산 결과입니다."],
+    ["전체 평균 이상 주문번호", "SELECT orderid FROM Orders WHERE saleprice >= (SELECT AVG(saleprice) FROM Orders) ORDER BY orderid;", "2, 5, 6, 7, 8, 10", "실제 테이블 기준 계산 결과입니다."],
+    ["고객별 평균이 전체 평균 이상인 고객번호", "SELECT custid FROM Orders GROUP BY custid HAVING AVG(saleprice) >= (SELECT AVG(saleprice) FROM Orders) ORDER BY custid;", "1, 4", "실제 테이블 기준 계산 결과입니다."],
+    ["정가와 판매가 같은 주문 수", "SELECT COUNT(*) FROM Orders JOIN Book ON Orders.bookid=Book.bookid WHERE Orders.saleprice = Book.price;", "5", "실제 테이블 기준 계산 결과입니다."],
+    ["할인액 최대값", "SELECT MAX(Book.price - Orders.saleprice) FROM Orders JOIN Book ON Orders.bookid=Book.bookid;", "6000", "실제 테이블 기준 계산 결과입니다."],
+    ["할인액 있는 주문번호", "SELECT Orders.orderid FROM Orders JOIN Book ON Orders.bookid=Book.bookid WHERE Book.price - Orders.saleprice > 0 ORDER BY Orders.orderid;", "1, 2, 6, 8, 9", "실제 테이블 기준 계산 결과입니다."],
+    ["고객별 도서 종류 수", "SELECT custid, COUNT(DISTINCT bookid) FROM Orders GROUP BY custid ORDER BY custid;", "1 3, 2 2, 3 3, 4 2", "실제 테이블 기준 계산 결과입니다."],
+    ["고객별 마지막 주문일", "SELECT custid, MAX(orderdate) FROM Orders GROUP BY custid ORDER BY custid;", "1 2020-07-07, 2 2020-07-09, 3 2020-07-10, 4 2020-07-07", "실제 테이블 기준 계산 결과입니다."],
+    ["고객별 첫 주문일", "SELECT custid, MIN(orderdate) FROM Orders GROUP BY custid ORDER BY custid;", "1 2020-07-01, 2 2020-07-03, 3 2020-07-04, 4 2020-07-05", "실제 테이블 기준 계산 결과입니다."],
+    ["주문 도서 중 최고 정가", "SELECT MAX(Book.price) FROM Book JOIN Orders ON Book.bookid=Orders.bookid;", "22000", "실제 테이블 기준 계산 결과입니다."],
+    ["주문 안 된 최고가 도서", "SELECT bookname FROM Book WHERE bookid NOT IN (SELECT bookid FROM Orders) ORDER BY price DESC LIMIT 1;", "골프 바이블", "실제 테이블 기준 계산 결과입니다."],
+    ["대한민국 고객 주문 수", "SELECT COUNT(*) FROM Customer JOIN Orders ON Customer.custid=Orders.custid WHERE Customer.address LIKE '대한민국%';", "5", "실제 테이블 기준 계산 결과입니다."],
+    ["미국 고객 주문 총액", "SELECT SUM(Orders.saleprice) FROM Customer JOIN Orders ON Customer.custid=Orders.custid WHERE Customer.address LIKE '미국%';", "33000", "실제 테이블 기준 계산 결과입니다."],
+    ["굿스포츠 매출 합계", "SELECT SUM(Orders.saleprice) FROM Book JOIN Orders ON Book.bookid=Orders.bookid WHERE Book.publisher='굿스포츠';", "20000", "실제 테이블 기준 계산 결과입니다."],
+    ["이상미디어 주문 수", "SELECT COUNT(*) FROM Book JOIN Orders ON Book.bookid=Orders.bookid WHERE Book.publisher='이상미디어';", "3", "실제 테이블 기준 계산 결과입니다."],
+    ["주문 없는 고객 포함 총액", "SELECT Customer.name, COALESCE(SUM(Orders.saleprice),0) FROM Customer LEFT OUTER JOIN Orders ON Customer.custid=Orders.custid GROUP BY Customer.custid, Customer.name ORDER BY Customer.custid;", "박지성 39000, 김연아 15000, 장미란 31000, 추신수 33000, 박세리 0", "실제 테이블 기준 계산 결과입니다."],
   ];
-  mid.forEach(x=>add('3유형 실행결과 맞추기 31~50 중급',...x));
-  mid.forEach(x=>add('3유형 실행결과 맞추기 31~50 중급',`${x[0]} 복습`,x[1],x[2],x[3]));
+  resultAdvanced.forEach((x,i)=>add(i < 30 ? '3유형 실행결과 맞추기 31~60 중급' : '3유형 실행결과 맞추기 61~100 고난도', ...x));
 
-  // 51~70: 어려움 - JOIN + GROUP + OUTER JOIN
-  const hard=[
-    ['LEFT JOIN 고객 수','SELECT COUNT(*) FROM Customer LEFT OUTER JOIN Orders ON Customer.custid=Orders.custid;',11,'LEFT OUTER JOIN'],
-    ['RIGHT JOIN 주문 수','SELECT COUNT(*) FROM Customer RIGHT OUTER JOIN Orders ON Customer.custid=Orders.custid;',10,'RIGHT OUTER JOIN'],
-    ['주문 없는 고객 수','SELECT COUNT(*) FROM Customer LEFT OUTER JOIN Orders ON Customer.custid=Orders.custid WHERE Orders.orderid IS NULL;',1,'LEFT JOIN NULL'],
-    ['주문 없는 도서 수','SELECT COUNT(*) FROM Book LEFT OUTER JOIN Orders ON Book.bookid=Orders.bookid WHERE Orders.orderid IS NULL;',2,'LEFT JOIN NULL'],
-    ['총액 30000 이상 고객',"SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid GROUP BY Customer.custid, Customer.name HAVING SUM(Orders.saleprice)>=30000;",'박지성, 장미란, 추신수','JOIN HAVING'],
-    ['주문 3개 이상 고객명',"SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid GROUP BY Customer.custid, Customer.name HAVING COUNT(*)>=3;",'박지성, 장미란','JOIN HAVING'],
-    ['최고 매출 고객',"SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid GROUP BY Customer.custid, Customer.name ORDER BY SUM(Orders.saleprice) DESC LIMIT 1;",'박지성','GROUP ORDER LIMIT'],
-    ['축구 주문 고객',"SELECT DISTINCT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid JOIN Book ON Orders.bookid=Book.bookid WHERE Book.bookname LIKE '%축구%';",'박지성','LIKE JOIN'],
-    ['야구 주문 고객',"SELECT DISTINCT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid JOIN Book ON Orders.bookid=Book.bookid WHERE Book.bookname LIKE '%야구%';",'추신수, 장미란','LIKE JOIN'],
-    ['출판사별 주문 고객 종류',"SELECT Book.publisher, COUNT(DISTINCT Orders.custid) FROM Book JOIN Orders ON Book.bookid=Orders.bookid GROUP BY Book.publisher ORDER BY Book.publisher ASC;",'굿스포츠 3, 나무수 1, 대한미디어 1, 이상미디어 2, Pearson 2','ASC 기준 출판사명 오름차순입니다. 한글 가나다 기준 답을 기본으로 표시하고, DB 정렬 규칙상 영문 Pearson이 먼저 오는 경우도 정답 처리합니다.',['Pearson 2, 굿스포츠 3, 나무수 1, 대한미디어 1, 이상미디어 2']]
-  ];
-  hard.forEach(x=>add('3유형 실행결과 맞추기 51~70 어려움',...x));
-  hard.forEach(x=>add('3유형 실행결과 맞추기 51~70 어려움',`${x[0]} 응용`,x[1],x[2],x[3]));
-
-  // 71~100: 최종 - 서브쿼리/계산식/종합
-  const final=[
-    ['평균보다 비싼 주문 수','SELECT COUNT(*) FROM Orders WHERE saleprice > (SELECT AVG(saleprice) FROM Orders);',6,'서브쿼리'],
-    ['할인 주문 수','SELECT COUNT(*) FROM Orders JOIN Book ON Orders.bookid=Book.bookid WHERE Orders.saleprice < Book.price;',5,'JOIN 비교'],
-    ['평균가격 이상 도서 수','SELECT COUNT(*) FROM Book WHERE price >= (SELECT AVG(price) FROM Book);',3,'서브쿼리'],
-    ['총액 최고 고객번호','SELECT custid FROM Orders GROUP BY custid ORDER BY SUM(saleprice) DESC LIMIT 1;',1,'GROUP ORDER LIMIT'],
-    ['가장 비싼 주문 도서명','SELECT Book.bookname FROM Book JOIN Orders ON Book.bookid=Orders.bookid ORDER BY Orders.saleprice DESC LIMIT 1;','축구의 이해','JOIN ORDER LIMIT'],
-    ['출판사별 최고 매출 출판사',"SELECT Book.publisher FROM Book JOIN Orders ON Book.bookid=Orders.bookid GROUP BY Book.publisher ORDER BY SUM(Orders.saleprice) DESC LIMIT 1;",'이상미디어','GROUP ORDER LIMIT'],
-    ['평균 주문금액 이상 고객',"SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid GROUP BY Customer.custid, Customer.name HAVING AVG(Orders.saleprice) >= (SELECT AVG(saleprice) FROM Orders);",'박지성, 추신수','HAVING 서브쿼리'],
-    ['할인액 1000 이상 주문 수','SELECT COUNT(*) FROM Orders JOIN Book ON Orders.bookid=Book.bookid WHERE Book.price - Orders.saleprice >= 1000;',5,'계산식 WHERE'],
-    ['주문 없는 도서명 LEFT',"SELECT Book.bookname FROM Book LEFT OUTER JOIN Orders ON Book.bookid=Orders.bookid WHERE Orders.orderid IS NULL;",'골프 바이블, 올림픽 이야기','OUTER JOIN'],
-    ['최종 고객별 통계 1위',"SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid GROUP BY Customer.custid, Customer.name ORDER BY COUNT(*) DESC, SUM(Orders.saleprice) DESC LIMIT 1;",'박지성','복수 정렬']
-  ];
-  for(let i=0;i<30;i++){ const x=final[i%final.length]; add('3유형 실행결과 맞추기 71~100 최종',`${x[0]} ${71+i}`,x[1],x[2],x[3]); }
 
   items.slice(0,100).forEach(x=>push(...x));
 }
