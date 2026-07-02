@@ -324,7 +324,7 @@ function checkAnswer(){
   const ok=user===ans;
   $('feedback').className='feedback '+(ok?'good':'bad');
   $('feedback').textContent=ok?'정답입니다!':'아직 달라요. 다시풀기를 누른 뒤 한 번 더 풀어보세요.';
-  $('answerBox').classList.remove('hidden');
+  $('answerBox').classList.add('hidden');
   $('retryBtn').classList.remove('hidden');
   if(ok){ solved[current]=true; localStorage.setItem('mysqlQuizSolved',JSON.stringify(solved)); updateProgress(); }
 }
