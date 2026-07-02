@@ -288,10 +288,9 @@ function closeSchemaPanel(){
 }
 function normalize(s){return s.toLowerCase().replace(/;\s*$/,'').replace(/\s+/g,' ').trim();}
 function getExplanation(q){
-  const type=q[0], title=q[1], sql=q[3], ans=q[4], hint=q[5];
-  if(type.includes('실행결과')) return `정답: ${ans}\n\n이유: 실제 테이블 값을 기준으로 SQL 실행 순서를 따라가면 됩니다. FROM/JOIN으로 행을 만들고, WHERE로 걸러낸 뒤, GROUP BY와 HAVING을 적용하고 SELECT 결과를 읽습니다. 핵심 개념: ${hint}\n\nSQL:\n${sql}`;
-  if(type.includes('빈칸')) return `정답: ${ans}\n\n이유: 빈칸 위치를 보고 필요한 키워드나 값을 판단합니다. WHERE는 조건, LIKE는 패턴, GROUP BY는 묶기, HAVING은 집계 조건, JOIN ON은 테이블 연결에 사용합니다. 핵심 개념: ${hint}\n\n문제 구문:\n${sql}`;
-  return `정답 SQL:\n${ans}\n\n이유: 요구사항을 SQL 절로 나누면 됩니다. 쉬운 SELECT부터 시작해서 WHERE, ORDER BY, 집계, GROUP BY, JOIN, 서브쿼리 순서로 점점 확장해 나가면 됩니다. 핵심 개념: ${hint}`;
+  const type=q[0], ans=q[4];
+  if(type.includes('실행결과') || type.includes('빈칸')) return `정답: ${ans}`;
+  return `정답 SQL:\n${ans}`;
 }
 function currentTypeStart(){ return Math.floor(current / 100) * 100; }
 function render(){
@@ -335,9 +334,6 @@ $('answerInput').addEventListener('keydown', e=>{
   }
 });
 $('retryBtn').onclick=()=>{
-  $('answerInput').value='';
-  delete saved[current];
-  localStorage.setItem('mysqlQuizAnswers',JSON.stringify(saved));
   $('feedback').className='feedback';
   $('feedback').textContent='';
   $('answerBox').classList.add('hidden');
