@@ -174,7 +174,7 @@ function buildResult100(){
   add('3유형 실행결과 맞추기 1~10 쉬움','최저 도서 가격','SELECT MIN(price) FROM Book;',6000,'MIN');
   add('3유형 실행결과 맞추기 1~10 쉬움','최고 도서 가격','SELECT MAX(price) FROM Book;',35000,'MAX');
   add('3유형 실행결과 맞추기 1~10 쉬움','전체 판매 합계','SELECT SUM(saleprice) FROM Orders;',118000,'SUM');
-  add('3유형 실행결과 맞추기 1~10 쉬움','평균 도서 가격','SELECT AVG(price) FROM Book;',17450,'AVG');
+  add('3유형 실행결과 맞추기 1~10 쉬움','평균 도서 가격','SELECT AVG(price) FROM Book;',14450,'AVG');
   add('3유형 실행결과 맞추기 1~10 쉬움','중복 없는 출판사 수','SELECT COUNT(DISTINCT publisher) FROM Book;',6,'DISTINCT');
   add('3유형 실행결과 맞추기 1~10 쉬움','가장 낮은 판매가','SELECT MIN(saleprice) FROM Orders;',6000,'MIN');
   add('3유형 실행결과 맞추기 1~10 쉬움','최근 주문일','SELECT MAX(orderdate) FROM Orders;','2020-07-10','MAX 날짜');
@@ -235,14 +235,14 @@ function buildResult100(){
 
   // 71~100: 최종 - 서브쿼리/계산식/종합
   const final=[
-    ['평균보다 비싼 주문 수','SELECT COUNT(*) FROM Orders WHERE saleprice > (SELECT AVG(saleprice) FROM Orders);',5,'서브쿼리'],
-    ['할인 주문 수','SELECT COUNT(*) FROM Orders JOIN Book ON Orders.bookid=Book.bookid WHERE Orders.saleprice < Book.price;',6,'JOIN 비교'],
+    ['평균보다 비싼 주문 수','SELECT COUNT(*) FROM Orders WHERE saleprice > (SELECT AVG(saleprice) FROM Orders);',6,'서브쿼리'],
+    ['할인 주문 수','SELECT COUNT(*) FROM Orders JOIN Book ON Orders.bookid=Book.bookid WHERE Orders.saleprice < Book.price;',5,'JOIN 비교'],
     ['평균가격 이상 도서 수','SELECT COUNT(*) FROM Book WHERE price >= (SELECT AVG(price) FROM Book);',3,'서브쿼리'],
     ['총액 최고 고객번호','SELECT custid FROM Orders GROUP BY custid ORDER BY SUM(saleprice) DESC LIMIT 1;',1,'GROUP ORDER LIMIT'],
     ['가장 비싼 주문 도서명','SELECT Book.bookname FROM Book JOIN Orders ON Book.bookid=Orders.bookid ORDER BY Orders.saleprice DESC LIMIT 1;','축구의 이해','JOIN ORDER LIMIT'],
     ['출판사별 최고 매출 출판사',"SELECT Book.publisher FROM Book JOIN Orders ON Book.bookid=Orders.bookid GROUP BY Book.publisher ORDER BY SUM(Orders.saleprice) DESC LIMIT 1;",'이상미디어','GROUP ORDER LIMIT'],
     ['평균 주문금액 이상 고객',"SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid GROUP BY Customer.custid, Customer.name HAVING AVG(Orders.saleprice) >= (SELECT AVG(saleprice) FROM Orders);",'박지성, 추신수','HAVING 서브쿼리'],
-    ['할인액 1000 이상 주문 수','SELECT COUNT(*) FROM Orders JOIN Book ON Orders.bookid=Book.bookid WHERE Book.price - Orders.saleprice >= 1000;',4,'계산식 WHERE'],
+    ['할인액 1000 이상 주문 수','SELECT COUNT(*) FROM Orders JOIN Book ON Orders.bookid=Book.bookid WHERE Book.price - Orders.saleprice >= 1000;',5,'계산식 WHERE'],
     ['주문 없는 도서명 LEFT',"SELECT Book.bookname FROM Book LEFT OUTER JOIN Orders ON Book.bookid=Orders.bookid WHERE Orders.orderid IS NULL;",'골프 바이블, 올림픽 이야기','OUTER JOIN'],
     ['최종 고객별 통계 1위',"SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid=Orders.custid GROUP BY Customer.custid, Customer.name ORDER BY COUNT(*) DESC, SUM(Orders.saleprice) DESC LIMIT 1;",'박지성','복수 정렬']
   ];
