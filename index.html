@@ -108,6 +108,117 @@
           </thead>
           <tbody>
             <tr>
+              <td><code>SELECT</code></td>
+              <td>조회할 열이나 계산식을 지정하는 가장 기본 명령어</td>
+              <td><pre>SELECT bookname, price FROM Book;
+SELECT * FROM Customer;</pre></td>
+            </tr>
+            <tr>
+              <td><code>FROM</code></td>
+              <td>데이터를 가져올 테이블을 지정</td>
+              <td><pre>SELECT *
+FROM Book;</pre></td>
+            </tr>
+            <tr>
+              <td><code>*</code></td>
+              <td>테이블의 모든 열을 조회할 때 사용</td>
+              <td><pre>SELECT * FROM Orders;</pre></td>
+            </tr>
+            <tr>
+              <td>컬럼명</td>
+              <td>필요한 열만 골라 조회. 예: <code>bookname</code>, <code>price</code>, <code>name</code>, <code>orderdate</code></td>
+              <td><pre>SELECT bookname FROM Book;
+SELECT name FROM Customer;
+SELECT saleprice FROM Orders;</pre></td>
+            </tr>
+            <tr>
+              <td>문자열/날짜 값</td>
+              <td>문자와 날짜는 작은따옴표로 감싸서 조건에 사용</td>
+              <td><pre>WHERE publisher = '굿스포츠'
+WHERE orderdate = '2020-07-03'</pre></td>
+            </tr>
+            <tr>
+              <td>비교 연산자</td>
+              <td><code>=</code>, <code>!=</code>, <code>&lt;&gt;</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>&lt;</code>, <code>&lt;=</code>로 값을 비교</td>
+              <td><pre>WHERE price &gt;= 10000;
+WHERE saleprice &lt; 10000;
+WHERE phone != '5678';</pre></td>
+            </tr>
+            <tr>
+              <td><code>AND</code></td>
+              <td>여러 조건을 모두 만족하는 행만 선택</td>
+              <td><pre>WHERE publisher = '굿스포츠'
+  AND price &gt;= 7000;</pre></td>
+            </tr>
+            <tr>
+              <td><code>BETWEEN A AND B</code></td>
+              <td>A 이상 B 이하의 범위에 포함되는 값을 검색</td>
+              <td><pre>WHERE price BETWEEN 10000 AND 20000;
+WHERE saleprice BETWEEN 7000 AND 13000;</pre></td>
+            </tr>
+            <tr>
+              <td><code>IS NULL</code></td>
+              <td>값이 비어 있는 행을 찾음. NULL은 <code>= NULL</code>로 비교하지 않음</td>
+              <td><pre>WHERE phone IS NULL;</pre></td>
+            </tr>
+            <tr>
+              <td><code>IS NOT NULL</code></td>
+              <td>NULL이 아닌 값이 들어 있는 행을 찾음</td>
+              <td><pre>WHERE phone IS NOT NULL;</pre></td>
+            </tr>
+            <tr>
+              <td><code>COUNT(*)</code></td>
+              <td>전체 행의 개수를 셈</td>
+              <td><pre>SELECT COUNT(*) FROM Book;</pre></td>
+            </tr>
+            <tr>
+              <td><code>SUM()</code></td>
+              <td>숫자 열의 합계를 구함</td>
+              <td><pre>SELECT SUM(saleprice) FROM Orders;</pre></td>
+            </tr>
+            <tr>
+              <td><code>AVG()</code></td>
+              <td>숫자 열의 평균을 구함</td>
+              <td><pre>SELECT AVG(price) FROM Book;</pre></td>
+            </tr>
+            <tr>
+              <td><code>MIN()</code></td>
+              <td>가장 작은 값 또는 가장 이른 날짜를 구함</td>
+              <td><pre>SELECT MIN(price) FROM Book;
+SELECT MIN(orderdate) FROM Orders;</pre></td>
+            </tr>
+            <tr>
+              <td><code>MAX()</code></td>
+              <td>가장 큰 값 또는 가장 최근 날짜를 구함</td>
+              <td><pre>SELECT MAX(price) FROM Book;
+SELECT MAX(orderdate) FROM Orders;</pre></td>
+            </tr>
+            <tr>
+              <td><code>LIMIT</code></td>
+              <td>조회 결과에서 앞의 N개만 출력. 정렬과 함께 상위/하위 1개 찾기에 자주 사용</td>
+              <td><pre>SELECT * FROM Book
+ORDER BY price DESC
+LIMIT 1;</pre></td>
+            </tr>
+            <tr>
+              <td><code>JOIN</code> / <code>INNER JOIN</code></td>
+              <td>두 테이블에서 연결 조건이 서로 맞는 행만 합쳐 조회. MySQL에서 <code>JOIN</code>은 보통 <code>INNER JOIN</code>과 같은 의미</td>
+              <td><pre>FROM Customer JOIN Orders
+ON Customer.custid = Orders.custid;</pre></td>
+            </tr>
+            <tr>
+              <td>계산식</td>
+              <td>열끼리 더하기, 빼기 등 계산한 결과를 조회하거나 조건에 사용</td>
+              <td><pre>SELECT Book.price - Orders.saleprice AS discount
+FROM Book JOIN Orders
+ON Book.bookid = Orders.bookid;</pre></td>
+            </tr>
+            <tr>
+              <td>서브쿼리 <code>(SELECT ...)</code></td>
+              <td>쿼리 안에 들어가는 또 다른 조회문. 평균, 최고값 등과 비교할 때 사용</td>
+              <td><pre>WHERE price &gt; (SELECT AVG(price) FROM Book);</pre></td>
+            </tr>
+            <tr>
               <td><code>DISTINCT</code></td>
               <td>조회 결과에서 중복된 행을 제거하고 고유한 값만 출력</td>
               <td><pre>SELECT DISTINCT publisher FROM Book;</pre></td>
@@ -148,6 +259,11 @@ WHERE bookname LIKE '%축구%';
 -- '축구' 포함</pre></td>
             </tr>
             <tr>
+              <td><code>NOT LIKE</code></td>
+              <td>특정 문자열 패턴과 일치하지 않는 행을 선택</td>
+              <td><pre>WHERE bookname NOT LIKE '%축구%';</pre></td>
+            </tr>
+            <tr>
               <td><code>OR</code></td>
               <td>나열된 조건 중 하나라도 만족하면 데이터를 선택</td>
               <td><pre>WHERE publisher = '굿스포츠'
@@ -162,6 +278,12 @@ WHERE publisher IN ('굿스포츠', '대한미디어');
 -- 아래 OR 조건과 비슷한 의미
 WHERE publisher = '굿스포츠'
    OR publisher = '대한미디어';</pre></td>
+            </tr>
+            <tr>
+              <td><code>NOT IN</code></td>
+              <td>목록이나 서브쿼리 결과에 포함되지 않는 행을 선택</td>
+              <td><pre>SELECT * FROM Book
+WHERE bookid NOT IN (SELECT bookid FROM Orders);</pre></td>
             </tr>
             <tr>
               <td><code>ON</code></td>
@@ -232,6 +354,15 @@ SELECT SUM(saleprice) AS 총액 FROM Orders;</pre></td>
               <td>서브쿼리의 조건을 만족하는 데이터가 하나라도 존재하는지 참/거짓 확인</td>
               <td><pre>SELECT * FROM Customer
 WHERE EXISTS (
+  SELECT * FROM Orders
+  WHERE Orders.custid = Customer.custid
+);</pre></td>
+            </tr>
+            <tr>
+              <td><code>NOT EXISTS</code></td>
+              <td>서브쿼리 조건을 만족하는 데이터가 하나도 없는 행을 선택</td>
+              <td><pre>SELECT * FROM Customer
+WHERE NOT EXISTS (
   SELECT * FROM Orders
   WHERE Orders.custid = Customer.custid
 );</pre></td>
@@ -307,7 +438,26 @@ FROM / JOIN
 
 # OUTER JOIN
 - LEFT OUTER JOIN  : 왼쪽 테이블은 전부 살림
-- RIGHT OUTER JOIN : 오른쪽 테이블은 전부 살림</pre>
+- RIGHT OUTER JOIN : 오른쪽 테이블은 전부 살림
+
+# 집계 함수
+- COUNT(*) : 행 개수
+- SUM(열)  : 합계
+- AVG(열)  : 평균
+- MIN(열)  : 최솟값
+- MAX(열)  : 최댓값
+
+# 범위 / 제한 / 제외
+- BETWEEN A AND B : A 이상 B 이하
+- LIMIT 1         : 결과 1개만 보기
+- NOT LIKE        : 패턴 제외
+- NOT IN          : 목록/서브쿼리에 없는 값
+- NOT EXISTS      : 관련 데이터가 없는 경우
+
+# JOIN과 서브쿼리
+- JOIN 또는 INNER JOIN : 양쪽에 연결되는 데이터만 합침
+- 서브쿼리: WHERE price > (SELECT AVG(price) FROM Book)
+- 계산식: Book.price - Orders.saleprice AS discount</pre>
       </article>
     </section>
   </main>
