@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Madang MySQL 100문제 연습 사이트</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Madang MySQL 기본문법 100문제</h1>
+      <p>이미지의 Book, Orders, Customer 테이블을 기준으로 100문제를 직접 입력하며 연습합니다.</p>
+    </div>
+    <div class="header-actions">
+      <button id="quizViewBtn" class="ghost">문제 풀기</button>
+      <button id="conceptViewBtn" class="ghost">개념 보기</button>
+      <button id="schemaBtn" class="ghost">테이블 보기</button>
+      <button id="resetBtn" class="danger">초기화</button>
+    </div>
+  </header>
+
+  <main id="quizView" class="layout">
+    <aside class="sidebar">
+      <div class="card">
+        <h2>진도</h2>
+        <div class="progress-wrap"><div id="progressBar"></div></div>
+        <p id="progressText">0 / 100</p>
+      </div>
+      <div class="card">
+        <h2>유형 / 난이도 이동</h2>
+        <button class="level" data-jump="0">1. 빈칸형 기초 100문제</button>
+        <button class="level" data-jump="100">2. 코드 보고 결과 쓰기 100문제</button>
+        <button class="level" data-jump="200">3. SQL 구문 작성 100문제</button>
+        <button class="level" data-jump="300">4. 조인/종합 SQL 작성 100문제</button>
+      </div>
+      <div class="card small">
+        <h2>문제 유형</h2>
+        <p>① 빈칸형 100문제<br>② 코드 보고 실행결과 쓰기 100문제<br>③ SQL 구문 작성 100문제<br>④ 조인/종합 SQL 작성 100문제</p>
+        <button id="sideConceptBtn" class="level">개념 보기로 이동</button>
+      </div>
+    </aside>
+
+    <section class="quiz-card">
+      <div class="meta">
+        <span id="numBadge">1 / 100</span>
+        <span id="levelBadge">기초</span>
+      </div>
+      <h2 id="questionTitle" class="hidden"></h2>
+      <p id="questionText"></p>
+      <pre id="templateBox" class="template"></pre>
+      <textarea id="answerInput" placeholder="여기에 답을 입력하세요"></textarea>
+      <div class="actions">
+        <button id="prevBtn" class="ghost">이전</button>
+        <button id="hintBtn" class="ghost">힌트</button>
+        <button id="checkBtn">채점</button>
+        <button id="nextBtn">다음</button>
+        <button id="showBtn" class="ghost">정답/이유 보기</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+      <div id="hintBox" class="hint hidden"></div>
+      <div id="answerBox" class="answer hidden"></div>
+    </section>
+  </main>
+
+  <main id="conceptView" class="concept-page hidden">
+    <section class="concept-hero">
+      <div>
+        <h2>MySQL 핵심 개념 정리</h2>
+        <p>문제를 풀기 전에 자주 헷갈리는 문법을 여기서 따로 확인하세요.</p>
+      </div>
+      <button id="backToQuizBtn">문제 풀러가기</button>
+    </section>
+
+    <section class="concept-grid">
+      <article class="concept-card">
+        <h3>1. 테이블명.컬럼명 개념</h3>
+        <p><b>Book.bookid</b>, <b>Orders.bookid</b>처럼 쓰는 것은 “어느 테이블의 컬럼인지” 정확히 지정하는 문법입니다.</p>
+        <pre>SELECT Book.bookname, Orders.orderid
+FROM Book JOIN Orders
+ON Book.bookid = Orders.bookid;</pre>
+        <p>두 테이블에 같은 이름의 컬럼이 있을 때는 반드시 구분해주는 것이 좋습니다.</p>
+      </article>
+
+      <article class="concept-card">
+        <h3>2. JOIN 기본 개념</h3>
+        <p><b>JOIN</b>은 여러 테이블을 연결해서 한 번에 조회하는 문법입니다. 연결 기준은 보통 <b>ON</b>에 씁니다.</p>
+        <pre>FROM Customer JOIN Orders
+ON Customer.custid = Orders.custid</pre>
+        <p>custid가 같은 행끼리 붙어서 고객 이름과 주문 정보를 함께 볼 수 있습니다.</p>
+      </article>
+
+      <article class="concept-card">
+        <h3>3. LEFT OUTER JOIN</h3>
+        <p>왼쪽 테이블은 전부 살리고, 오른쪽에 맞는 데이터가 없으면 오른쪽 컬럼은 <b>NULL</b>로 나옵니다.</p>
+        <pre>SELECT Book.bookname, Orders.orderid
+FROM Book LEFT JOIN Orders
+ON Book.bookid = Orders.bookid;</pre>
+        <p>예: 주문된 적 없는 도서도 조회하고 싶을 때 사용합니다.</p>
+      </article>
+
+      <article class="concept-card">
+        <h3>4. RIGHT OUTER JOIN</h3>
+        <p>오른쪽 테이블은 전부 살리고, 왼쪽에 맞는 데이터가 없으면 왼쪽 컬럼은 <b>NULL</b>로 나옵니다.</p>
+        <pre>SELECT Book.bookname, Orders.orderid
+FROM Book RIGHT JOIN Orders
+ON Book.bookid = Orders.bookid;</pre>
+      </article>
+
+      <article class="concept-card">
+        <h3>5. MIN / MAX</h3>
+        <p><b>MIN</b>은 최솟값, <b>MAX</b>는 최댓값을 구하는 집계 함수입니다.</p>
+        <pre>SELECT MIN(price) FROM Book;
+SELECT MAX(price) FROM Book;</pre>
+        <p>GROUP BY와 함께 쓰면 그룹별 최솟값/최댓값도 구할 수 있습니다.</p>
+        <pre>SELECT custid, MAX(saleprice)
+FROM Orders
+GROUP BY custid;</pre>
+      </article>
+
+      <article class="concept-card">
+        <h3>6. WHERE vs HAVING</h3>
+        <p><b>WHERE</b>는 그룹으로 묶기 전 개별 행 조건, <b>HAVING</b>은 GROUP BY 이후 집계 결과 조건입니다.</p>
+        <pre>SELECT custid, COUNT(*)
+FROM Orders
+WHERE saleprice >= 10000
+GROUP BY custid
+HAVING COUNT(*) >= 2;</pre>
+      </article>
+
+      <article class="concept-card">
+        <h3>7. NULL 비교</h3>
+        <p>NULL은 <b>=</b>, <b>!=</b>로 비교하지 않고 <b>IS NULL</b>, <b>IS NOT NULL</b>을 사용합니다.</p>
+        <pre>WHERE phone IS NULL
+WHERE phone IS NOT NULL</pre>
+      </article>
+
+      <article class="concept-card">
+        <h3>8. LIKE 와일드카드</h3>
+        <p><b>_</b>는 정확히 한 글자, <b>%</b>는 글자 수 제한 없음을 의미합니다.</p>
+        <pre>WHERE name LIKE '박%'
+WHERE bookname LIKE '%축구%'</pre>
+      </article>
+    </section>
+  </main>
+
+  <dialog id="schemaDialog">
+    <div class="dialog-head">
+      <h2>사용 테이블</h2>
+      <button id="closeSchema" class="ghost">닫기</button>
+    </div>
+    <div class="schema-grid">
+      <div>
+        <h3>Book</h3>
+        <table><tr><th>bookid</th><th>bookname</th><th>publisher</th><th>price</th></tr><tr><td>1</td><td>축구의 역사</td><td>굿스포츠</td><td>7000</td></tr><tr><td>2</td><td>축구 아는 여자</td><td>나무수</td><td>13000</td></tr><tr><td>3</td><td>축구의 이해</td><td>대한미디어</td><td>22000</td></tr><tr><td>4</td><td>골프 바이블</td><td>대한미디어</td><td>35000</td></tr><tr><td>5</td><td>피겨 교본</td><td>굿스포츠</td><td>8000</td></tr><tr><td>6</td><td>역도 단계별기술</td><td>굿스포츠</td><td>6000</td></tr><tr><td>7</td><td>야구의 추억</td><td>이상미디어</td><td>20000</td></tr><tr><td>8</td><td>야구를 부탁해</td><td>이상미디어</td><td>13000</td></tr><tr><td>9</td><td>올림픽 이야기</td><td>삼성당</td><td>7500</td></tr><tr><td>10</td><td>Olympic Champions</td><td>Pearson</td><td>13000</td></tr></table>
+      </div>
+      <div>
+        <h3>Orders</h3>
+        <table><tr><th>orderid</th><th>custid</th><th>bookid</th><th>saleprice</th><th>orderdate</th></tr><tr><td>1</td><td>1</td><td>1</td><td>6000</td><td>2020-07-01</td></tr><tr><td>2</td><td>1</td><td>3</td><td>21000</td><td>2020-07-03</td></tr><tr><td>3</td><td>2</td><td>5</td><td>8000</td><td>2020-07-03</td></tr><tr><td>4</td><td>3</td><td>6</td><td>6000</td><td>2020-07-04</td></tr><tr><td>5</td><td>4</td><td>7</td><td>20000</td><td>2020-07-05</td></tr><tr><td>6</td><td>1</td><td>2</td><td>12000</td><td>2020-07-07</td></tr><tr><td>7</td><td>4</td><td>8</td><td>13000</td><td>2020-07-07</td></tr><tr><td>8</td><td>3</td><td>10</td><td>12000</td><td>2020-07-08</td></tr><tr><td>9</td><td>2</td><td>10</td><td>7000</td><td>2020-07-09</td></tr><tr><td>10</td><td>3</td><td>8</td><td>13000</td><td>2020-07-10</td></tr></table>
+      </div>
+      <div>
+        <h3>Customer</h3>
+        <table><tr><th>custid</th><th>name</th><th>address</th><th>phone</th></tr><tr><td>1</td><td>박지성</td><td>영국 맨체스터</td><td>000-5000-0001</td></tr><tr><td>2</td><td>김연아</td><td>대한민국 서울</td><td>000-6000-0001</td></tr><tr><td>3</td><td>장미란</td><td>대한민국 강원도</td><td>000-7000-0001</td></tr><tr><td>4</td><td>추신수</td><td>미국 클리블랜드</td><td>000-8000-0001</td></tr><tr><td>5</td><td>박세리</td><td>대한민국 대전</td><td>NULL</td></tr></table>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="script.js"></script>
+</body>
+</html>
