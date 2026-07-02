@@ -259,7 +259,6 @@ function checkAnswer(){
   $('answerBox').classList.remove('hidden');
   if(ok){ solved[current]=true; localStorage.setItem('mysqlQuizSolved',JSON.stringify(solved)); updateProgress(); }
 }
-$('checkBtn').onclick=checkAnswer;
 $('answerInput').addEventListener('keydown', e=>{
   if(e.key==='Enter' && !e.shiftKey){
     e.preventDefault();
