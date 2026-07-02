@@ -213,14 +213,25 @@ function makeTable(title, rows, columns){
   const body = rows.map(row=>`<tr>${columns.map(c=>`<td>${row[c]}</td>`).join('')}</tr>`).join('');
   return `<div class="schema-table-wrap"><h4>${title}</h4><table><tr>${head}</tr>${body}</table></div>`;
 }
-function renderInlineSchema(){
-  const box = $('inlineSchema');
-  if(!box) return;
-  box.insertAdjacentHTML('beforeend', `<div class="schema-grid">
+function schemaTablesHtml(){
+  return `<div class="schema-grid">
     ${makeTable('Book', bookRows, ['bookid','bookname','publisher','price'])}
     ${makeTable('Orders', orderRows, ['orderid','custid','bookid','saleprice','orderdate'])}
     ${makeTable('Customer', customerRows, ['custid','name','address','phone'])}
-  </div>`);
+  </div>`;
+}
+function renderSchemaPanel(){
+  const box = $('schemaPanelBody');
+  if(!box) return;
+  box.innerHTML = schemaTablesHtml();
+}
+function openSchemaPanel(){
+  $('quizView').classList.add('schema-open');
+  $('schemaPanel').classList.remove('hidden');
+}
+function closeSchemaPanel(){
+  $('quizView').classList.remove('schema-open');
+  $('schemaPanel').classList.add('hidden');
 }
 function normalize(s){return s.toLowerCase().replace(/;\s*$/,'').replace(/\s+/g,' ').trim();}
 function getExplanation(q){
@@ -281,7 +292,8 @@ $('quizViewBtn').onclick=showQuiz;
 $('conceptViewBtn').onclick=showConcept;
 $('sideConceptBtn').onclick=showConcept;
 $('backToQuizBtn').onclick=showQuiz;
-$('schemaBtn').onclick=()=>$('schemaDialog').showModal();
+$('schemaBtn').onclick=openSchemaPanel;
+$('closeSchemaPanel').onclick=closeSchemaPanel;
 $('closeSchema').onclick=()=>$('schemaDialog').close();
-renderInlineSchema();
+renderSchemaPanel();
 render();

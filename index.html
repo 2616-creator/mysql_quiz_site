@@ -41,6 +41,17 @@
       </div>
     </aside>
 
+    <section id="schemaPanel" class="schema-panel hidden">
+      <div class="schema-panel-head">
+        <div>
+          <h2>사용 테이블</h2>
+          <p>Book, Orders, Customer 테이블을 보면서 문제를 풀 수 있습니다.</p>
+        </div>
+        <button id="closeSchemaPanel" class="ghost">닫기</button>
+      </div>
+      <div id="schemaPanelBody" class="schema-panel-body"></div>
+    </section>
+
     <section class="quiz-card">
       <div class="meta">
         <span id="numBadge">1 / 100</span>
@@ -57,14 +68,6 @@
         <button id="nextBtn">다음</button>
         <button id="showBtn" class="ghost">정답/이유 보기</button>
       </div>
-
-      <section id="inlineSchema" class="inline-schema">
-        <div class="inline-schema-head">
-          <h3>문제 풀이용 테이블</h3>
-          <span>문제 풀면서 바로 확인할 수 있도록 버튼 아래에 고정 표시됩니다.</span>
-        </div>
-      </section>
-
       <div id="feedback" class="feedback"></div>
       <div id="hintBox" class="hint hidden"></div>
       <div id="answerBox" class="answer hidden"></div>
