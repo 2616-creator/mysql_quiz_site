@@ -154,6 +154,25 @@ WHERE bookname LIKE '%축구%';
    OR publisher = '대한미디어';</pre></td>
             </tr>
             <tr>
+              <td><code>IN</code></td>
+              <td>여러 값 목록 중 하나와 일치하는 데이터를 선택. OR 조건을 짧게 쓸 때 자주 사용</td>
+              <td><pre>SELECT * FROM Book
+WHERE publisher IN ('굿스포츠', '대한미디어');
+
+-- 아래 OR 조건과 비슷한 의미
+WHERE publisher = '굿스포츠'
+   OR publisher = '대한미디어';</pre></td>
+            </tr>
+            <tr>
+              <td><code>ON</code></td>
+              <td>JOIN할 때 두 테이블을 어떤 컬럼 기준으로 연결할지 지정하는 조건</td>
+              <td><pre>FROM Customer JOIN Orders
+ON Customer.custid = Orders.custid;
+
+FROM Book JOIN Orders
+ON Book.bookid = Orders.bookid;</pre></td>
+            </tr>
+            <tr>
               <td><code>ORDER BY</code></td>
               <td>데이터를 특정 열 기준으로 정렬. 보통 쿼리문의 가장 마지막에 위치</td>
               <td><pre>ORDER BY price ASC;
@@ -280,6 +299,12 @@ FROM / JOIN
 - '%축구%' : 축구 포함
 - '_대%'  : 두 번째 글자가 대
 
+# IN / ON
+- IN : 여러 값 중 하나인지 확인
+  WHERE publisher IN ('굿스포츠', '대한미디어')
+- ON : JOIN 연결 조건
+  ON Customer.custid = Orders.custid
+
 # OUTER JOIN
 - LEFT OUTER JOIN  : 왼쪽 테이블은 전부 살림
 - RIGHT OUTER JOIN : 오른쪽 테이블은 전부 살림</pre>
@@ -308,6 +333,6 @@ FROM / JOIN
     </div>
   </dialog>
 
-  <script src="script.js?v=202607021655"></script>
+  <script src="script.js?v=202607021705"></script>
 </body>
 </html>
