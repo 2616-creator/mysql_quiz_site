@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Madang MySQL 100문제 단계별 연습 사이트</title>
+  <title>Madang MySQL 연습 사이트</title>
   <link rel="stylesheet" href="style.css?v=202607021450" />
 </head>
 <body>
   <header class="topbar">
     <div>
-      <h1>Madang MySQL 기본문법 단계별 100문제</h1>
-      <p>1번부터 100번까지 SELECT 기초에서 JOIN, GROUP BY, 서브쿼리까지 점점 어려워지도록 구성했습니다.</p>
+      <h1>Madang MySQL 기본문법 연습 사이트</h1>
+      <p>빈칸 채워넣기, 구문 작성하기, 실행결과 맞추기를 시험 형식으로 연습할 수 있습니다.</p>
     </div>
     <div class="header-actions">
       <button id="quizViewBtn" class="ghost">문제 풀기</button>
@@ -30,14 +30,14 @@
           <input id="jumpInput" type="number" min="1" max="100" placeholder="유형 내 번호" />
           <button id="jumpBtn">이동</button>
         </div>
-        <p class="jump-help">현재 유형 안에서 1~100번만 입력할 수 있습니다.</p>
+        <p class="jump-help">현재 유형 안에서 원하는 문제 번호로 이동할 수 있습니다.</p>
       </div>
       <div class="card">
         <h2>유형 이동</h2>
         <button class="level" data-jump="0">빈칸 채워넣기 100문제</button>
         <button class="level" data-jump="100">구문 작성하기 100문제</button>
         <button class="level" data-jump="200">실행결과 맞추기 100문제</button>
-        <p class="jump-help">각 유형마다 100문제씩 있고, 1번에서 100번으로 갈수록 난이도가 올라갑니다.</p>
+        <p class="jump-help">각 유형은 쉬운 문제부터 어려운 문제까지 단계적으로 구성되어 있습니다.</p>
       </div>
       <div class="card">
         <h2>난이도 이동</h2>
@@ -333,6 +333,6 @@ FROM / JOIN
     </div>
   </dialog>
 
-  <script src="script.js?v=202607021705"></script>
+  <script src="script.js?v=202607021715"></script>
 </body>
 </html>
