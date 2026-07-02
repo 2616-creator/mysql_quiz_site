@@ -197,9 +197,9 @@ function buildResult100(){
   add('3유형 실행결과 맞추기 11~30 조건','축구 제외 도서 수',"SELECT COUNT(*) FROM Book WHERE bookname NOT LIKE '%축구%';",7,'NOT LIKE');
   add('3유형 실행결과 맞추기 11~30 조건','가격 내림차순 첫 도서','SELECT bookname FROM Book ORDER BY price DESC LIMIT 1;','골프 바이블','ORDER BY LIMIT');
   add('3유형 실행결과 맞추기 11~30 조건','판매가 내림차순 첫 주문번호','SELECT orderid FROM Orders ORDER BY saleprice DESC LIMIT 1;',2,'ORDER BY LIMIT');
-  add('3유형 실행결과 맞추기 11~30 조건','굿스포츠 매출',"SELECT SUM(Orders.saleprice) FROM Book JOIN Orders ON Book.bookid=Orders.bookid WHERE Book.publisher='굿스포츠';",20000,'쉬운 JOIN+SUM');
-  add('3유형 실행결과 맞추기 11~30 조건','평균 이상 도서 수','SELECT COUNT(*) FROM Book WHERE price >= (SELECT AVG(price) FROM Book);',3,'쉬운 서브쿼리');
-  add('3유형 실행결과 맞추기 11~30 조건','주문 없는 고객','SELECT name FROM Customer WHERE phone IS NULL;','박세리','조건 결과');
+  add('3유형 실행결과 맞추기 11~30 조건','전화번호 없는 고객','SELECT name FROM Customer WHERE phone IS NULL;','박세리','NULL 조건');
+  add('3유형 실행결과 맞추기 11~30 조건','판매가 10000 미만 주문 수','SELECT COUNT(*) FROM Orders WHERE saleprice < 10000;',3,'단일 테이블 조건');
+  add('3유형 실행결과 맞추기 11~30 조건','출판사 오름차순 첫 값','SELECT publisher FROM Book ORDER BY publisher ASC LIMIT 1;','Pearson','단일 테이블 정렬');
 
   // 31~50: 중급 - GROUP BY/HAVING, 단순 JOIN
   const mid=[
@@ -268,18 +268,18 @@ function buildProgressive100(){
     ['1단계 SELECT 기초','10. 중복 없는 출판사','Book에서 publisher를 중복 없이 조회하세요.','','SELECT DISTINCT publisher FROM Book;','DISTINCT는 중복 제거입니다.']
   ].forEach(x=>push(...x));
 
-  // 11~20: WHERE / LIKE / wildcard / NULL (빈칸과 SQL 작성 혼합)
+  // 11~20: WHERE / LIKE / NULL - 아직 단일 테이블만 사용
   [
-    ['2단계 WHERE/LIKE 핵심','11. WHERE 위치','가격이 10000원 이상인 도서를 고르려면 빈칸에 들어갈 절은?','SELECT * FROM Book ____ price >= 10000;','WHERE','WHERE는 행 조건을 시작하는 절입니다.'],
-    ['2단계 WHERE/LIKE 핵심','12. 문자 조건 값','출판사가 굿스포츠인 조건의 오른쪽 값을 쓰세요.','SELECT * FROM Book WHERE publisher = ____;','\'굿스포츠\'','문자열은 따옴표로 감쌉니다.'],
-    ['2단계 WHERE/LIKE 핵심','13. 포함 검색 패턴','도서명에 축구가 포함되도록 LIKE 패턴을 쓰세요.','SELECT * FROM Book WHERE bookname LIKE ____;','\'%축구%\'','%축구%는 앞뒤에 어떤 글자가 와도 됩니다.'],
-    ['2단계 WHERE/LIKE 핵심','14. 시작 검색 패턴','이름이 박으로 시작하도록 LIKE 패턴을 쓰세요.','SELECT * FROM Customer WHERE name LIKE ____;','\'박%\'','박%는 박으로 시작하는 모든 문자열입니다.'],
-    ['2단계 WHERE/LIKE 핵심','15. 한 글자 와일드카드','두 번째 글자가 구인 2글자 단어 패턴을 쓰세요. 예: 축구','SELECT * FROM Book WHERE bookname LIKE ____;','\'_구%\'','_는 정확히 한 글자, %는 0글자 이상입니다.'],
-    ['2단계 WHERE/LIKE 핵심','16. 범위 키워드','가격이 10000원 이상 20000원 이하가 되도록 키워드를 채우세요.','SELECT * FROM Book WHERE price ____ 10000 AND 20000;','BETWEEN','BETWEEN A AND B는 A 이상 B 이하입니다.'],
-    ['2단계 WHERE/LIKE 핵심','17. 목록 조건 키워드','출판사가 굿스포츠 또는 대한미디어 중 하나인지 검사하는 키워드는?','SELECT * FROM Book WHERE publisher ____ (\'굿스포츠\', \'대한미디어\');','IN','IN은 여러 값 중 하나와 일치하는지 검사합니다.'],
-    ['2단계 WHERE/LIKE 핵심','18. NULL 비교','전화번호가 NULL인 고객을 찾는 조건을 완성하세요.','SELECT * FROM Customer WHERE phone ____ NULL;','IS','NULL은 =가 아니라 IS NULL로 비교합니다.'],
-    ['2단계 WHERE/LIKE 핵심','19. NOT LIKE 활용','도서명에 축구가 포함되지 않은 도서를 조회하세요.','','SELECT * FROM Book WHERE bookname NOT LIKE \'%축구%\';','NOT LIKE는 패턴에 맞지 않는 행을 찾습니다.'],
-    ['2단계 WHERE/LIKE 핵심','20. AND 조건 활용','굿스포츠 출판사이면서 가격이 7000원 이상인 도서를 조회하세요.','','SELECT * FROM Book WHERE publisher = \'굿스포츠\' AND price >= 7000;','AND는 두 조건을 모두 만족해야 합니다.']
+    ['2단계 WHERE/LIKE 핵심','11. 가격 조건','가격이 10000원 이상인 도서를 조회하세요.','','SELECT * FROM Book WHERE price >= 10000;','WHERE로 행을 필터링합니다.'],
+    ['2단계 WHERE/LIKE 핵심','12. 문자 조건','출판사가 굿스포츠인 도서를 조회하세요.','','SELECT * FROM Book WHERE publisher = \'굿스포츠\';','문자열은 따옴표로 감쌉니다.'],
+    ['2단계 WHERE/LIKE 핵심','13. 고객 조건','이름이 박지성인 고객을 조회하세요.','','SELECT * FROM Customer WHERE name = \'박지성\';','Customer의 name을 조건으로 사용합니다.'],
+    ['2단계 WHERE/LIKE 핵심','14. 주문 날짜 조건','주문일자가 2020-07-03인 주문을 조회하세요.','','SELECT * FROM Orders WHERE orderdate = \'2020-07-03\';','날짜도 따옴표로 비교합니다.'],
+    ['2단계 WHERE/LIKE 핵심','15. 포함 검색','도서명에 축구가 포함된 도서를 조회하세요.','','SELECT * FROM Book WHERE bookname LIKE \'%축구%\';','포함 검색은 %검색어%입니다.'],
+    ['2단계 WHERE/LIKE 핵심','16. 시작 검색','이름이 박으로 시작하는 고객을 조회하세요.','','SELECT * FROM Customer WHERE name LIKE \'박%\';','시작 검색은 검색어%입니다.'],
+    ['2단계 WHERE/LIKE 핵심','17. 범위 조건','가격이 10000원 이상 20000원 이하인 도서를 조회하세요.','','SELECT * FROM Book WHERE price BETWEEN 10000 AND 20000;','BETWEEN A AND B는 A 이상 B 이하입니다.'],
+    ['2단계 WHERE/LIKE 핵심','18. 목록 조건','출판사가 굿스포츠 또는 대한미디어인 도서를 조회하세요.','','SELECT * FROM Book WHERE publisher IN (\'굿스포츠\', \'대한미디어\');','IN은 여러 값 중 하나와 일치하는지 검사합니다.'],
+    ['2단계 WHERE/LIKE 핵심','19. NULL 조건','전화번호가 NULL인 고객을 조회하세요.','','SELECT * FROM Customer WHERE phone IS NULL;','NULL은 IS NULL로 비교합니다.'],
+    ['2단계 WHERE/LIKE 핵심','20. NULL 제외','전화번호가 NULL이 아닌 고객을 조회하세요.','','SELECT * FROM Customer WHERE phone IS NOT NULL;','NULL이 아닌 값은 IS NOT NULL입니다.']
   ].forEach(x=>push(...x));
 
   // 21~30: AND/OR/ORDER BY/LIMIT
@@ -293,7 +293,7 @@ function buildProgressive100(){
     ['3단계 조건 조합/정렬','27. 가장 비싼 도서','가장 비싼 도서 1권을 조회하세요.','','SELECT * FROM Book ORDER BY price DESC LIMIT 1;','정렬 후 LIMIT 1을 사용합니다.'],
     ['3단계 조건 조합/정렬','28. 가장 싼 도서명','가장 싼 도서명을 조회하세요.','','SELECT bookname FROM Book ORDER BY price ASC LIMIT 1;','오름차순 첫 행이 최솟값입니다.'],
     ['3단계 조건 조합/정렬','29. 최근 주문 3건','주문일자가 최근인 주문 3건을 조회하세요.','','SELECT * FROM Orders ORDER BY orderdate DESC LIMIT 3;','날짜도 정렬할 수 있습니다.'],
-    ['3단계 조건 조합/정렬','30. 할인 주문','정가보다 싸게 판매된 주문의 orderid를 조회하세요.','Book과 Orders를 비교해야 합니다.','SELECT Orders.orderid FROM Orders JOIN Book ON Orders.bookid = Book.bookid WHERE Orders.saleprice < Book.price;','두 테이블 값 비교에는 JOIN이 필요합니다.']
+    ['3단계 조건 조합/정렬','30. 판매가격 낮은 주문','판매가격이 10000원 미만인 주문의 orderid를 조회하세요.','','SELECT orderid FROM Orders WHERE saleprice < 10000;','아직 단일 테이블 조건으로 연습합니다.']
   ].forEach(x=>push(...x));
 
   // 31~40: aggregate basics
