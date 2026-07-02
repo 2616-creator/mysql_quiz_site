@@ -165,7 +165,7 @@ function buildFillBlank100(){
 function buildResult100(){
   const push=(stage,title,text,template,answer,hint)=>questions.push([stage,title,text,template,String(answer),hint]);
   const items=[];
-  const add=(stage,title,sql,answer,hint)=>items.push([stage,`${items.length+1}. ${title}`,'다음 SQL의 실행결과를 쓰세요.',sql,String(answer),hint]);
+  const add=(stage,title,sql,answer,hint,alternatives=[])=>items.push([stage,`${items.length+1}. ${title}`,'다음 SQL의 실행결과를 쓰세요.',sql,String(answer),hint,alternatives]);
 
   // 1~10: 쉬움 - 단일 테이블 기본 결과
   add('3유형 실행결과 맞추기 1~10 쉬움','Book 행 수','SELECT COUNT(*) FROM Book;',10,'행 수 계산');
@@ -199,7 +199,7 @@ function buildResult100(){
   add('3유형 실행결과 맞추기 11~30 조건','판매가 내림차순 첫 주문번호','SELECT orderid FROM Orders ORDER BY saleprice DESC LIMIT 1;',2,'ORDER BY LIMIT');
   add('3유형 실행결과 맞추기 11~30 조건','전화번호 없는 고객','SELECT name FROM Customer WHERE phone IS NULL;','박세리','NULL 조건');
   add('3유형 실행결과 맞추기 11~30 조건','판매가 10000 미만 주문 수','SELECT COUNT(*) FROM Orders WHERE saleprice < 10000;',4,'COUNT(*)는 중복을 제거하지 않고 조건에 맞는 행을 모두 셉니다. 6000, 8000, 6000, 7000 총 4건입니다.');
-  add('3유형 실행결과 맞추기 11~30 조건','출판사 오름차순 첫 값','SELECT publisher FROM Book ORDER BY publisher ASC LIMIT 1;','Pearson','단일 테이블 정렬');
+  add('3유형 실행결과 맞추기 11~30 조건','출판사 오름차순 첫 값','SELECT publisher FROM Book ORDER BY publisher ASC LIMIT 1;','Pearson','문자 정렬은 DB의 collation(정렬 규칙)에 따라 달라질 수 있습니다. ASCII/기본 바이너리식 정렬이면 Pearson이 먼저 나오고, 한글 가나다식 정렬로 보면 굿스포츠가 먼저 나올 수 있어 둘 다 정답 처리합니다.',['굿스포츠']);
 
   // 31~50: 중급 - GROUP BY/HAVING, 단순 JOIN
   const mid=[
