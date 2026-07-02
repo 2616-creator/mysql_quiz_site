@@ -208,6 +208,20 @@ const saved = JSON.parse(localStorage.getItem('mysqlQuizAnswers') || '{}');
 const solved = JSON.parse(localStorage.getItem('mysqlQuizSolved') || '{}');
 
 const $ = id => document.getElementById(id);
+function makeTable(title, rows, columns){
+  const head = columns.map(c=>`<th>${c}</th>`).join('');
+  const body = rows.map(row=>`<tr>${columns.map(c=>`<td>${row[c]}</td>`).join('')}</tr>`).join('');
+  return `<div class="schema-table-wrap"><h4>${title}</h4><table><tr>${head}</tr>${body}</table></div>`;
+}
+function renderInlineSchema(){
+  const box = $('inlineSchema');
+  if(!box) return;
+  box.insertAdjacentHTML('beforeend', `<div class="schema-grid">
+    ${makeTable('Book', bookRows, ['bookid','bookname','publisher','price'])}
+    ${makeTable('Orders', orderRows, ['orderid','custid','bookid','saleprice','orderdate'])}
+    ${makeTable('Customer', customerRows, ['custid','name','address','phone'])}
+  </div>`);
+}
 function normalize(s){return s.toLowerCase().replace(/;\s*$/,'').replace(/\s+/g,' ').trim();}
 function getExplanation(q){
   const type=q[0], title=q[1], sql=q[3], ans=q[4], hint=q[5];
@@ -269,4 +283,5 @@ $('sideConceptBtn').onclick=showConcept;
 $('backToQuizBtn').onclick=showQuiz;
 $('schemaBtn').onclick=()=>$('schemaDialog').showModal();
 $('closeSchema').onclick=()=>$('schemaDialog').close();
+renderInlineSchema();
 render();
