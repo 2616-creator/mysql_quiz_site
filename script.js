@@ -61,18 +61,18 @@ function buildProgressive100(){
     ['1단계 SELECT 기초','10. 중복 없는 출판사','Book에서 publisher를 중복 없이 조회하세요.','','SELECT DISTINCT publisher FROM Book;','DISTINCT는 중복 제거입니다.']
   ].forEach(x=>push(...x));
 
-  // 11~20: WHERE 비교 / 문자 / LIKE / NULL
+  // 11~20: WHERE / LIKE / wildcard / NULL (빈칸과 SQL 작성 혼합)
   [
-    ['2단계 WHERE 조건','11. 가격 10000 이상','가격이 10000원 이상인 도서를 조회하세요.','','SELECT * FROM Book WHERE price >= 10000;','숫자 조건은 따옴표 없이 비교합니다.'],
-    ['2단계 WHERE 조건','12. 가격 10000 미만','가격이 10000원 미만인 도서명을 조회하세요.','','SELECT bookname FROM Book WHERE price < 10000;','SELECT와 WHERE를 함께 사용합니다.'],
-    ['2단계 WHERE 조건','13. 특정 출판사','굿스포츠 출판사의 도서를 조회하세요.','','SELECT * FROM Book WHERE publisher = \'굿스포츠\';','문자열은 따옴표로 감쌉니다.'],
-    ['2단계 WHERE 조건','14. 특정 고객','이름이 김연아인 고객을 조회하세요.','','SELECT * FROM Customer WHERE name = \'김연아\';','문자 조건은 = 로 비교합니다.'],
-    ['2단계 WHERE 조건','15. 축구 포함','도서명에 축구가 포함된 도서를 조회하세요.','','SELECT * FROM Book WHERE bookname LIKE \'%축구%\';','%검색어%는 포함 검색입니다.'],
-    ['2단계 WHERE 조건','16. 박으로 시작','이름이 박으로 시작하는 고객을 조회하세요.','','SELECT * FROM Customer WHERE name LIKE \'박%\';','글자%는 시작 조건입니다.'],
-    ['2단계 WHERE 조건','17. 가격 범위','가격이 10000원 이상 20000원 이하인 도서를 조회하세요.','','SELECT * FROM Book WHERE price BETWEEN 10000 AND 20000;','BETWEEN A AND B는 A 이상 B 이하입니다.'],
-    ['2단계 WHERE 조건','18. 여러 출판사','출판사가 굿스포츠 또는 대한미디어인 도서를 조회하세요.','',"SELECT * FROM Book WHERE publisher IN ('굿스포츠', '대한미디어');",'IN은 목록 중 하나와 일치하는 조건입니다.'],
-    ['2단계 WHERE 조건','19. NULL 전화번호','전화번호가 NULL인 고객을 조회하세요.','','SELECT * FROM Customer WHERE phone IS NULL;','NULL은 =가 아니라 IS NULL입니다.'],
-    ['2단계 WHERE 조건','20. NOT NULL 전화번호','전화번호가 NULL이 아닌 고객명을 조회하세요.','','SELECT name FROM Customer WHERE phone IS NOT NULL;','NULL이 아닌 값은 IS NOT NULL입니다.']
+    ['2단계 WHERE/LIKE 핵심','11. WHERE 위치','가격이 10000원 이상인 도서를 고르려면 빈칸에 들어갈 절은?','SELECT * FROM Book ____ price >= 10000;','WHERE','WHERE는 행 조건을 시작하는 절입니다.'],
+    ['2단계 WHERE/LIKE 핵심','12. 문자 조건 값','출판사가 굿스포츠인 조건의 오른쪽 값을 쓰세요.','SELECT * FROM Book WHERE publisher = ____;','\'굿스포츠\'','문자열은 따옴표로 감쌉니다.'],
+    ['2단계 WHERE/LIKE 핵심','13. 포함 검색 패턴','도서명에 축구가 포함되도록 LIKE 패턴을 쓰세요.','SELECT * FROM Book WHERE bookname LIKE ____;','\'%축구%\'','%축구%는 앞뒤에 어떤 글자가 와도 됩니다.'],
+    ['2단계 WHERE/LIKE 핵심','14. 시작 검색 패턴','이름이 박으로 시작하도록 LIKE 패턴을 쓰세요.','SELECT * FROM Customer WHERE name LIKE ____;','\'박%\'','박%는 박으로 시작하는 모든 문자열입니다.'],
+    ['2단계 WHERE/LIKE 핵심','15. 한 글자 와일드카드','두 번째 글자가 구인 2글자 단어 패턴을 쓰세요. 예: 축구','SELECT * FROM Book WHERE bookname LIKE ____;','\'_구%\'','_는 정확히 한 글자, %는 0글자 이상입니다.'],
+    ['2단계 WHERE/LIKE 핵심','16. 범위 키워드','가격이 10000원 이상 20000원 이하가 되도록 키워드를 채우세요.','SELECT * FROM Book WHERE price ____ 10000 AND 20000;','BETWEEN','BETWEEN A AND B는 A 이상 B 이하입니다.'],
+    ['2단계 WHERE/LIKE 핵심','17. 목록 조건 키워드','출판사가 굿스포츠 또는 대한미디어 중 하나인지 검사하는 키워드는?','SELECT * FROM Book WHERE publisher ____ (\'굿스포츠\', \'대한미디어\');','IN','IN은 여러 값 중 하나와 일치하는지 검사합니다.'],
+    ['2단계 WHERE/LIKE 핵심','18. NULL 비교','전화번호가 NULL인 고객을 찾는 조건을 완성하세요.','SELECT * FROM Customer WHERE phone ____ NULL;','IS','NULL은 =가 아니라 IS NULL로 비교합니다.'],
+    ['2단계 WHERE/LIKE 핵심','19. NOT LIKE 활용','도서명에 축구가 포함되지 않은 도서를 조회하세요.','','SELECT * FROM Book WHERE bookname NOT LIKE \'%축구%\';','NOT LIKE는 패턴에 맞지 않는 행을 찾습니다.'],
+    ['2단계 WHERE/LIKE 핵심','20. AND 조건 활용','굿스포츠 출판사이면서 가격이 7000원 이상인 도서를 조회하세요.','','SELECT * FROM Book WHERE publisher = \'굿스포츠\' AND price >= 7000;','AND는 두 조건을 모두 만족해야 합니다.']
   ].forEach(x=>push(...x));
 
   // 21~30: AND/OR/ORDER BY/LIMIT
@@ -250,7 +250,7 @@ function updateProgress(){
   $('progressBar').style.width = `${count/questions.length*100}%`;
 }
 $('answerInput').addEventListener('input', e=>{saved[current]=e.target.value; localStorage.setItem('mysqlQuizAnswers',JSON.stringify(saved));});
-$('checkBtn').onclick=()=>{
+function checkAnswer(){
   const user=normalize($('answerInput').value);
   const ans=normalize(questions[current][4]);
   const ok=user===ans;
@@ -258,7 +258,14 @@ $('checkBtn').onclick=()=>{
   $('feedback').textContent=ok?'정답입니다!':'아직 달라요. 아래 이유를 보고 개념을 확인하세요.';
   $('answerBox').classList.remove('hidden');
   if(ok){ solved[current]=true; localStorage.setItem('mysqlQuizSolved',JSON.stringify(solved)); updateProgress(); }
-};
+}
+$('checkBtn').onclick=checkAnswer;
+$('answerInput').addEventListener('keydown', e=>{
+  if(e.key==='Enter' && !e.shiftKey){
+    e.preventDefault();
+    checkAnswer();
+  }
+});
 $('hintBtn').onclick=()=>$('hintBox').classList.toggle('hidden');
 $('showBtn').onclick=()=>$('answerBox').classList.toggle('hidden');
 $('nextBtn').onclick=()=>{
