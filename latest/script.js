@@ -431,10 +431,28 @@ function closeSchemaPanel(){
   $('quizView').classList.remove('schema-open');
   $('schemaPanel').classList.add('hidden');
 }
-function normalize(s){return s.toLowerCase().replace(/;\s*$/,'').replace(/\s+/g,' ').trim();}
-function compactAnswer(s){return s.toLowerCase().replace(/[，、]/g,',').replace(/;/g,'').replace(/\s+/g,'').trim();}
+function normalizeQuotes(s){
+  return String(s ?? '')
+    .replace(/[“”]/g, '"')
+    .replace(/[‘’]/g, "'")
+    .replace(/"([^"\\]*(?:\\.[^"\\]*)*)"/g, "'$1'");
+}
+function normalizeSqlWords(s){
+  return normalizeQuotes(s)
+    .toLowerCase()
+    .replace(/;\s*$/g, '')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/\binner\s+join\b/g, 'join')
+    .replace(/\bleft\s+outer\s+join\b/g, 'left join')
+    .replace(/\bright\s+outer\s+join\b/g, 'right join')
+    .replace(/\bas\s+/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+function normalize(s){return normalizeSqlWords(s);}
+function compactAnswer(s){return normalizeSqlWords(s).replace(/[，、]/g,',').replace(/;/g,'').replace(/\s+/g,'').trim();}
 function listAnswer(s){
-  return s.toLowerCase()
+  return normalizeSqlWords(s)
     .replace(/[，、]/g,',')
     .replace(/;/g,'')
     .split(',')
@@ -447,10 +465,29 @@ function sameListAnswer(a,b){
   if(aa.length!==bb.length) return false;
   return aa.every((v,i)=>v===bb[i]) || aa.slice().sort().every((v,i)=>v===bb.slice().sort()[i]);
 }
+function sameNumberAnswer(a,b){
+  const aa=normalizeQuotes(a).trim().replace(/,/g,'');
+  const bb=normalizeQuotes(b).trim().replace(/,/g,'');
+  if(!/^-?\d+(\.\d+)?$/.test(aa) || !/^-?\d+(\.\d+)?$/.test(bb)) return false;
+  return Math.abs(Number(aa)-Number(bb)) < 1e-9;
+}
+function answerCandidates(q){
+  const base = [q[4], ...(Array.isArray(q[6]) ? q[6] : [])].map(String);
+  const expanded = [];
+  base.forEach(ans=>{
+    expanded.push(ans);
+    if(ans.includes("'")) expanded.push(ans.replace(/'([^']*)'/g, '"$1"'));
+    expanded.push(ans.replace(/\bLEFT OUTER JOIN\b/gi, 'LEFT JOIN'));
+    expanded.push(ans.replace(/\bRIGHT OUTER JOIN\b/gi, 'RIGHT JOIN'));
+    expanded.push(ans.replace(/\bINNER JOIN\b/gi, 'JOIN'));
+  });
+  return [...new Set(expanded)];
+}
 function getExplanation(q){
   const type=q[0], ans=q[4];
-  if(type.includes('실행결과') || type.includes('빈칸')) return `정답: ${ans}`;
-  return `정답 SQL:\n${ans}`;
+  const extras = Array.isArray(q[6]) && q[6].length ? `\n허용 답: ${[ans, ...q[6]].join(' / ')}` : '';
+  if(type.includes('실행결과') || type.includes('빈칸')) return `정답: ${ans}${extras}`;
+  return `정답 SQL:\n${ans}${extras}`;
 }
 function currentTypeStart(){ return Math.floor(current / 100) * 100; }
 function resultHeader(sql){
@@ -515,15 +552,17 @@ function updateProgress(){
 $('answerInput').addEventListener('input', e=>{saved[current]=e.target.value; localStorage.setItem('mysqlQuizAnswers',JSON.stringify(saved));});
 function checkAnswer(){
   const q = questions[current];
-  const user=normalize($('answerInput').value);
-  const ans=normalize(q[4]);
-  const userCompact=compactAnswer($('answerInput').value);
-  const ansCompact=compactAnswer(q[4]);
+  const rawUser = $('answerInput').value;
+  const userCompact=compactAnswer(rawUser);
   const isResultType = q[0].includes('실행결과');
   const isFillType = q[0].includes('빈칸');
-  const ok = (isResultType || isFillType)
-    ? userCompact===ansCompact || sameListAnswer($('answerInput').value, q[4])
-    : userCompact===ansCompact || userCompact.includes(ansCompact) || sameListAnswer($('answerInput').value, q[4]);
+  const candidates = answerCandidates(q);
+  const ok = candidates.some(candidate => {
+    const ansCompact=compactAnswer(candidate);
+    if(sameNumberAnswer(rawUser, candidate)) return true;
+    if(userCompact===ansCompact || sameListAnswer(rawUser, candidate)) return true;
+    return !(isResultType || isFillType) && userCompact.includes(ansCompact);
+  });
   $('feedback').className='feedback '+(ok?'good':'bad');
   $('feedback').textContent=ok?'정답입니다!':'아직 달라요. 다시풀기를 누른 뒤 한 번 더 풀어보세요.';
   $('answerBox').classList.add('hidden');
