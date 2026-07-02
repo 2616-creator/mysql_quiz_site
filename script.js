@@ -103,32 +103,32 @@ function buildProgressive100(){
     ['4단계 집계 함수','40. 출판사별 도서 수','출판사별 도서 수를 구하세요.','','SELECT publisher, COUNT(*) FROM Book GROUP BY publisher;','그룹별 집계의 시작입니다.']
   ].forEach(x=>push(...x));
 
-  // 41~50: GROUP BY/HAVING
+  // 41~50: JOIN / OUTER JOIN까지 기본 개념 완성
   [
-    ['5단계 GROUP BY/HAVING','41. 고객별 주문 수','고객번호별 주문 개수를 구하세요.','','SELECT custid, COUNT(*) FROM Orders GROUP BY custid;','custid별로 묶습니다.'],
-    ['5단계 GROUP BY/HAVING','42. 고객별 총액','고객번호별 총 판매금액을 구하세요.','','SELECT custid, SUM(saleprice) FROM Orders GROUP BY custid;','SUM을 GROUP BY와 함께 사용합니다.'],
-    ['5단계 GROUP BY/HAVING','43. 도서별 주문 수','도서번호별 주문 개수를 구하세요.','','SELECT bookid, COUNT(*) FROM Orders GROUP BY bookid;','bookid별 주문 횟수입니다.'],
-    ['5단계 GROUP BY/HAVING','44. 날짜별 주문 수','주문일자별 주문 개수를 구하세요.','','SELECT orderdate, COUNT(*) FROM Orders GROUP BY orderdate;','날짜별로 묶습니다.'],
-    ['5단계 GROUP BY/HAVING','45. 고객별 최고 주문금액','고객번호별 가장 높은 판매가격을 구하세요.','','SELECT custid, MAX(saleprice) FROM Orders GROUP BY custid;','그룹별 MAX입니다.'],
-    ['5단계 GROUP BY/HAVING','46. 주문 2개 이상 고객','주문 개수가 2개 이상인 고객번호와 주문 수를 구하세요.','','SELECT custid, COUNT(*) FROM Orders GROUP BY custid HAVING COUNT(*) >= 2;','집계 조건은 HAVING입니다.'],
-    ['5단계 GROUP BY/HAVING','47. 총액 20000 이상 고객','총 판매금액이 20000원 이상인 고객번호와 총액을 구하세요.','','SELECT custid, SUM(saleprice) FROM Orders GROUP BY custid HAVING SUM(saleprice) >= 20000;','SUM 결과를 HAVING에서 비교합니다.'],
-    ['5단계 GROUP BY/HAVING','48. 출판사 평균가격','출판사별 평균 가격을 구하세요.','','SELECT publisher, AVG(price) FROM Book GROUP BY publisher;','Book을 publisher별로 묶습니다.'],
-    ['5단계 GROUP BY/HAVING','49. 평균가격 10000 이상 출판사','평균 가격이 10000원 이상인 출판사와 평균 가격을 구하세요.','','SELECT publisher, AVG(price) FROM Book GROUP BY publisher HAVING AVG(price) >= 10000;','그룹 평균 조건입니다.'],
-    ['5단계 GROUP BY/HAVING','50. 고객별 총액 정렬','고객번호별 총 판매금액을 구하고 총액 내림차순 정렬하세요.','','SELECT custid, SUM(saleprice) AS total FROM Orders GROUP BY custid ORDER BY total DESC;','집계 결과 별칭으로 정렬할 수 있습니다.']
+    ['5단계 JOIN/OUTER JOIN 개념','41. INNER JOIN 기본','고객명과 주문번호를 INNER JOIN으로 조회하세요.','','SELECT Customer.name, Orders.orderid FROM Customer INNER JOIN Orders ON Customer.custid = Orders.custid;','INNER JOIN은 양쪽에 연결되는 행만 보여줍니다.'],
+    ['5단계 JOIN/OUTER JOIN 개념','42. JOIN ON 빈칸','Customer와 Orders를 연결하는 조건 키워드를 쓰세요.','FROM Customer JOIN Orders ____ Customer.custid = Orders.custid','ON','ON 뒤에 두 테이블의 연결 조건을 씁니다.'],
+    ['5단계 JOIN/OUTER JOIN 개념','43. 도서 주문 JOIN','도서명과 주문번호를 조회하세요.','','SELECT Book.bookname, Orders.orderid FROM Book JOIN Orders ON Book.bookid = Orders.bookid;','Book과 Orders는 bookid로 연결합니다.'],
+    ['5단계 JOIN/OUTER JOIN 개념','44. 3테이블 JOIN','고객명, 도서명, 판매가격을 함께 조회하세요.','','SELECT Customer.name, Book.bookname, Orders.saleprice FROM Customer JOIN Orders ON Customer.custid = Orders.custid JOIN Book ON Orders.bookid = Book.bookid;','Customer-Orders-Book을 순서대로 연결합니다.'],
+    ['5단계 JOIN/OUTER JOIN 개념','45. LEFT OUTER JOIN','주문이 없는 고객도 포함되도록 고객과 주문을 조인하세요.','','SELECT Customer.name, Orders.orderid FROM Customer LEFT OUTER JOIN Orders ON Customer.custid = Orders.custid;','LEFT OUTER JOIN은 왼쪽 Customer를 모두 살립니다.'],
+    ['5단계 JOIN/OUTER JOIN 개념','46. 주문 없는 고객 찾기','LEFT OUTER JOIN으로 주문한 적 없는 고객을 조회하세요.','','SELECT Customer.* FROM Customer LEFT OUTER JOIN Orders ON Customer.custid = Orders.custid WHERE Orders.orderid IS NULL;','LEFT JOIN 후 오른쪽 값이 NULL인 행을 찾습니다.'],
+    ['5단계 JOIN/OUTER JOIN 개념','47. RIGHT OUTER JOIN','모든 주문을 기준으로 도서 정보를 붙이는 RIGHT OUTER JOIN을 작성하세요.','','SELECT Book.bookname, Orders.orderid FROM Book RIGHT OUTER JOIN Orders ON Book.bookid = Orders.bookid;','RIGHT OUTER JOIN은 오른쪽 Orders를 모두 살립니다.'],
+    ['5단계 JOIN/OUTER JOIN 개념','48. 주문 없는 도서 찾기','LEFT OUTER JOIN으로 주문된 적 없는 도서를 조회하세요.','','SELECT Book.* FROM Book LEFT OUTER JOIN Orders ON Book.bookid = Orders.bookid WHERE Orders.orderid IS NULL;','Book을 왼쪽에 두면 주문 없는 도서도 남습니다.'],
+    ['5단계 JOIN/OUTER JOIN 개념','49. GROUP BY와 JOIN','고객 이름별 주문 개수를 구하세요.','','SELECT Customer.name, COUNT(Orders.orderid) FROM Customer LEFT OUTER JOIN Orders ON Customer.custid = Orders.custid GROUP BY Customer.custid, Customer.name;','JOIN 결과를 고객별로 묶어 집계합니다.'],
+    ['5단계 JOIN/OUTER JOIN 개념','50. HAVING과 JOIN','주문 개수가 2개 이상인 고객명과 주문 수를 구하세요.','','SELECT Customer.name, COUNT(*) FROM Customer JOIN Orders ON Customer.custid = Orders.custid GROUP BY Customer.custid, Customer.name HAVING COUNT(*) >= 2;','50번까지 SELECT, WHERE, LIKE, 집계, JOIN, OUTER JOIN, HAVING 개념을 모두 다룹니다.']
   ].forEach(x=>push(...x));
 
-  // 51~60: basic joins
+  // 51~60: concept application mixed practice
   [
-    ['6단계 기본 JOIN','51. 고객명과 주문번호','고객명과 주문번호를 조회하세요.','','SELECT Customer.name, Orders.orderid FROM Customer JOIN Orders ON Customer.custid = Orders.custid;','Customer와 Orders는 custid로 연결합니다.'],
-    ['6단계 기본 JOIN','52. 도서명과 주문번호','도서명과 주문번호를 조회하세요.','','SELECT Book.bookname, Orders.orderid FROM Book JOIN Orders ON Book.bookid = Orders.bookid;','Book과 Orders는 bookid로 연결합니다.'],
-    ['6단계 기본 JOIN','53. 고객명과 판매가격','고객명과 판매가격을 조회하세요.','','SELECT Customer.name, Orders.saleprice FROM Customer JOIN Orders ON Customer.custid = Orders.custid;','조인 후 원하는 컬럼을 SELECT합니다.'],
-    ['6단계 기본 JOIN','54. 도서명과 판매가격','도서명과 판매가격을 조회하세요.','','SELECT Book.bookname, Orders.saleprice FROM Book JOIN Orders ON Book.bookid = Orders.bookid;','Orders의 판매가격과 Book의 도서명을 같이 봅니다.'],
-    ['6단계 기본 JOIN','55. 3테이블 기본','고객명, 도서명, 판매가격을 조회하세요.','','SELECT Customer.name, Book.bookname, Orders.saleprice FROM Customer JOIN Orders ON Customer.custid = Orders.custid JOIN Book ON Orders.bookid = Book.bookid;','3개 테이블을 순서대로 연결합니다.'],
-    ['6단계 기본 JOIN','56. 박지성 주문 도서','박지성이 주문한 도서명을 조회하세요.','','SELECT Book.bookname FROM Customer JOIN Orders ON Customer.custid = Orders.custid JOIN Book ON Orders.bookid = Book.bookid WHERE Customer.name = \'박지성\';','조인 후 고객명 조건을 줍니다.'],
-    ['6단계 기본 JOIN','57. 축구 도서 주문 고객','도서명에 축구가 포함된 도서를 주문한 고객명을 조회하세요.','','SELECT Customer.name FROM Customer JOIN Orders ON Customer.custid = Orders.custid JOIN Book ON Orders.bookid = Book.bookid WHERE Book.bookname LIKE \'%축구%\';','Book 조건과 Customer 결과를 함께 사용합니다.'],
-    ['6단계 기본 JOIN','58. 대한미디어 주문 내역','대한미디어 도서를 주문한 고객명과 도서명을 조회하세요.','','SELECT Customer.name, Book.bookname FROM Customer JOIN Orders ON Customer.custid = Orders.custid JOIN Book ON Orders.bookid = Book.bookid WHERE Book.publisher = \'대한미디어\';','출판사 조건은 Book에 있습니다.'],
-    ['6단계 기본 JOIN','59. 10000 이상 주문 상세','판매가격이 10000원 이상인 주문의 고객명, 도서명, 판매가격을 조회하세요.','','SELECT Customer.name, Book.bookname, Orders.saleprice FROM Customer JOIN Orders ON Customer.custid = Orders.custid JOIN Book ON Orders.bookid = Book.bookid WHERE Orders.saleprice >= 10000;','Orders.saleprice로 필터링합니다.'],
-    ['6단계 기본 JOIN','60. 주문 상세 날짜정렬','고객명, 도서명, 주문일자를 주문일자 오름차순으로 조회하세요.','','SELECT Customer.name, Book.bookname, Orders.orderdate FROM Customer JOIN Orders ON Customer.custid = Orders.custid JOIN Book ON Orders.bookid = Book.bookid ORDER BY Orders.orderdate ASC;','조인 결과도 ORDER BY 가능합니다.']
+    ['6단계 활용 시작','51. 조건+LIKE+정렬','도서명에 축구가 포함된 도서를 가격 높은 순으로 조회하세요.','','SELECT * FROM Book WHERE bookname LIKE \'%축구%\' ORDER BY price DESC;','LIKE와 ORDER BY를 함께 사용합니다.'],
+    ['6단계 활용 시작','52. WHERE+IN+정렬','굿스포츠 또는 이상미디어 출판사의 도서를 가격 오름차순으로 조회하세요.','',"SELECT * FROM Book WHERE publisher IN ('굿스포츠', '이상미디어') ORDER BY price ASC;",'IN으로 목록 조건을 만들고 정렬합니다.'],
+    ['6단계 활용 시작','53. JOIN+WHERE','박지성이 주문한 도서명과 판매가격을 조회하세요.','','SELECT Book.bookname, Orders.saleprice FROM Customer JOIN Orders ON Customer.custid = Orders.custid JOIN Book ON Orders.bookid = Book.bookid WHERE Customer.name = \'박지성\';','3테이블 JOIN 후 특정 고객 조건입니다.'],
+    ['6단계 활용 시작','54. JOIN+LIKE','야구 도서를 주문한 고객명과 도서명을 조회하세요.','','SELECT Customer.name, Book.bookname FROM Customer JOIN Orders ON Customer.custid = Orders.custid JOIN Book ON Orders.bookid = Book.bookid WHERE Book.bookname LIKE \'%야구%\';','LIKE 조건을 조인 결과에 적용합니다.'],
+    ['6단계 활용 시작','55. JOIN+BETWEEN','판매가격이 10000~20000원인 주문의 고객명, 도서명을 조회하세요.','','SELECT Customer.name, Book.bookname FROM Customer JOIN Orders ON Customer.custid = Orders.custid JOIN Book ON Orders.bookid = Book.bookid WHERE Orders.saleprice BETWEEN 10000 AND 20000;','BETWEEN과 JOIN 조합입니다.'],
+    ['6단계 활용 시작','56. LEFT OUTER JOIN 활용','주문 없는 고객도 포함해 고객명과 주문번호를 조회하세요.','','SELECT Customer.name, Orders.orderid FROM Customer LEFT OUTER JOIN Orders ON Customer.custid = Orders.custid;','주문 없는 고객은 orderid가 NULL로 나옵니다.'],
+    ['6단계 활용 시작','57. RIGHT OUTER JOIN 활용','모든 주문을 기준으로 주문번호와 고객명을 조회하세요.','','SELECT Orders.orderid, Customer.name FROM Customer RIGHT OUTER JOIN Orders ON Customer.custid = Orders.custid;','오른쪽 Orders의 모든 행을 살립니다.'],
+    ['6단계 활용 시작','58. GROUP+ORDER','고객별 총 판매금액을 구하고 총액 내림차순으로 정렬하세요.','','SELECT Customer.name, SUM(Orders.saleprice) AS total FROM Customer JOIN Orders ON Customer.custid = Orders.custid GROUP BY Customer.custid, Customer.name ORDER BY total DESC;','JOIN+GROUP BY+ORDER BY입니다.'],
+    ['6단계 활용 시작','59. HAVING 활용','총 판매금액이 25000원 이상인 고객명과 총액을 조회하세요.','','SELECT Customer.name, SUM(Orders.saleprice) AS total FROM Customer JOIN Orders ON Customer.custid = Orders.custid GROUP BY Customer.custid, Customer.name HAVING SUM(Orders.saleprice) >= 25000;','집계 조건은 HAVING입니다.'],
+    ['6단계 활용 시작','60. NOT EXISTS 활용','주문된 적 없는 도서를 NOT EXISTS로 조회하세요.','','SELECT * FROM Book WHERE NOT EXISTS (SELECT * FROM Orders WHERE Orders.bookid = Book.bookid);','서브쿼리로 존재하지 않는 관계를 찾습니다.']
   ].forEach(x=>push(...x));
 
   // 61~70: join + group
@@ -173,18 +173,18 @@ function buildProgressive100(){
     ['9단계 고급 서브쿼리','90. 출판사별 주문 고객 종류','출판사별로 주문한 고객 종류 수를 구하세요.','','SELECT Book.publisher, COUNT(DISTINCT Orders.custid) FROM Book JOIN Orders ON Book.bookid = Orders.bookid GROUP BY Book.publisher;','JOIN 후 DISTINCT 집계입니다.']
   ].forEach(x=>push(...x));
 
-  // 91~100: hard mixed final
+  // 91~100: hard mixed final - simple SELECT 없음
   [
-    ['10단계 최종 종합','91. 모든 고객 매출 포함','주문 없는 고객도 포함해 고객명, 주문 수, 총 판매금액을 조회하세요. 총액 NULL은 그대로 두어도 됩니다.','','SELECT Customer.name, COUNT(Orders.orderid) AS order_count, SUM(Orders.saleprice) AS total FROM Customer LEFT JOIN Orders ON Customer.custid = Orders.custid GROUP BY Customer.custid, Customer.name;','LEFT JOIN + GROUP BY 종합입니다.'],
-    ['10단계 최종 종합','92. 모든 도서 매출 포함','주문 없는 도서도 포함해 도서명, 주문 수, 총 판매금액을 조회하세요.','','SELECT Book.bookname, COUNT(Orders.orderid) AS order_count, SUM(Orders.saleprice) AS total FROM Book LEFT JOIN Orders ON Book.bookid = Orders.bookid GROUP BY Book.bookid, Book.bookname;','Book을 왼쪽에 둔 집계입니다.'],
-    ['10단계 최종 종합','93. 고객별 10000원 이상 주문 수','고객명별로 판매가격 10000원 이상인 주문 수를 구하세요.','','SELECT Customer.name, COUNT(*) FROM Customer JOIN Orders ON Customer.custid = Orders.custid WHERE Orders.saleprice >= 10000 GROUP BY Customer.custid, Customer.name;','WHERE로 주문을 먼저 걸러낸 뒤 그룹화합니다.'],
-    ['10단계 최종 종합','94. 출판사별 10000원 이상 매출','판매가격 10000원 이상 주문만 대상으로 출판사별 총 판매금액을 구하세요.','','SELECT Book.publisher, SUM(Orders.saleprice) FROM Book JOIN Orders ON Book.bookid = Orders.bookid WHERE Orders.saleprice >= 10000 GROUP BY Book.publisher;','JOIN + WHERE + GROUP BY입니다.'],
-    ['10단계 최종 종합','95. 고객별 주문 수와 총액 HAVING','주문 수가 2개 이상이고 총 판매금액이 25000원 이상인 고객명, 주문 수, 총액을 조회하세요.','','SELECT Customer.name, COUNT(*) AS cnt, SUM(Orders.saleprice) AS total FROM Customer JOIN Orders ON Customer.custid = Orders.custid GROUP BY Customer.custid, Customer.name HAVING COUNT(*) >= 2 AND SUM(Orders.saleprice) >= 25000;','HAVING에서 집계 조건을 여러 개 연결합니다.'],
-    ['10단계 최종 종합','96. 출판사별 평균 할인액','출판사별 평균 할인액(정가-판매가)을 구하세요.','','SELECT Book.publisher, AVG(Book.price - Orders.saleprice) AS avg_discount FROM Book JOIN Orders ON Book.bookid = Orders.bookid GROUP BY Book.publisher;','계산식 AVG와 GROUP BY 조합입니다.'],
-    ['10단계 최종 종합','97. 평균 주문금액 초과 고객','자신의 평균 주문금액이 전체 평균 주문금액보다 큰 고객명과 평균 주문금액을 조회하세요.','','SELECT Customer.name, AVG(Orders.saleprice) AS avg_sale FROM Customer JOIN Orders ON Customer.custid = Orders.custid GROUP BY Customer.custid, Customer.name HAVING AVG(Orders.saleprice) > (SELECT AVG(saleprice) FROM Orders);','그룹 평균과 전체 평균 비교입니다.'],
-    ['10단계 최종 종합','98. 주문 없는 도서 제외한 매출 상위 출판사','주문된 도서만 기준으로 총 판매금액이 가장 큰 출판사와 총액을 조회하세요.','','SELECT Book.publisher, SUM(Orders.saleprice) AS total FROM Book JOIN Orders ON Book.bookid = Orders.bookid GROUP BY Book.publisher ORDER BY total DESC LIMIT 1;','후반 문제는 집계+정렬+LIMIT까지 함께 사용합니다.'],
-    ['10단계 최종 종합','99. 고객별 가장 비싼 주문','각 고객의 이름과 그 고객의 최고 판매가격을 조회하되, 주문한 고객만 포함하세요.','','SELECT Customer.name, MAX(Orders.saleprice) AS max_sale FROM Customer JOIN Orders ON Customer.custid = Orders.custid GROUP BY Customer.custid, Customer.name;','고객별 MAX를 구합니다.'],
-    ['10단계 최종 종합','100. 최종 종합 쿼리','주문한 고객별로 고객명, 주문 수, 총 판매금액, 평균 판매금액을 조회하고 총 판매금액 내림차순으로 정렬하세요.','','SELECT Customer.name, COUNT(*) AS order_count, SUM(Orders.saleprice) AS total, AVG(Orders.saleprice) AS avg_sale FROM Customer JOIN Orders ON Customer.custid = Orders.custid GROUP BY Customer.custid, Customer.name ORDER BY total DESC;','JOIN, GROUP BY, 여러 집계, ORDER BY를 모두 사용하는 최종 문제입니다.']
+    ['10단계 최종 종합','91. LEFT OUTER JOIN 종합','주문 없는 고객도 포함해 고객명, 주문 수, 총 판매금액을 조회하고 주문 수 내림차순으로 정렬하세요.','','SELECT Customer.name, COUNT(Orders.orderid) AS order_count, SUM(Orders.saleprice) AS total FROM Customer LEFT OUTER JOIN Orders ON Customer.custid = Orders.custid GROUP BY Customer.custid, Customer.name ORDER BY order_count DESC;','LEFT OUTER JOIN, GROUP BY, COUNT, SUM, ORDER BY를 함께 씁니다.'],
+    ['10단계 최종 종합','92. RIGHT OUTER JOIN 종합','모든 주문을 기준으로 고객명, 주문번호, 도서명을 조회하고 주문번호 오름차순 정렬하세요.','','SELECT Customer.name, Orders.orderid, Book.bookname FROM Customer RIGHT OUTER JOIN Orders ON Customer.custid = Orders.custid JOIN Book ON Orders.bookid = Book.bookid ORDER BY Orders.orderid ASC;','RIGHT OUTER JOIN으로 Orders를 기준에 둡니다.'],
+    ['10단계 최종 종합','93. LIKE+GROUP+HAVING','도서명에 구가 포함된 도서를 주문한 고객별 주문 수를 구하고 1개 이상인 고객만 조회하세요.','','SELECT Customer.name, COUNT(*) AS cnt FROM Customer JOIN Orders ON Customer.custid = Orders.custid JOIN Book ON Orders.bookid = Book.bookid WHERE Book.bookname LIKE \'%구%\' GROUP BY Customer.custid, Customer.name HAVING COUNT(*) >= 1;','LIKE 필터 후 그룹 집계합니다.'],
+    ['10단계 최종 종합','94. 평균 초과 주문 상세','전체 평균 판매가격보다 비싼 주문의 고객명, 도서명, 판매가격을 판매가격 내림차순으로 조회하세요.','','SELECT Customer.name, Book.bookname, Orders.saleprice FROM Customer JOIN Orders ON Customer.custid = Orders.custid JOIN Book ON Orders.bookid = Book.bookid WHERE Orders.saleprice > (SELECT AVG(saleprice) FROM Orders) ORDER BY Orders.saleprice DESC;','서브쿼리 평균과 JOIN 결과를 함께 사용합니다.'],
+    ['10단계 최종 종합','95. 출판사별 고객 종류','출판사별 주문 고객 종류 수와 총 판매금액을 구하고 총액 내림차순 정렬하세요.','','SELECT Book.publisher, COUNT(DISTINCT Orders.custid) AS customer_count, SUM(Orders.saleprice) AS total FROM Book JOIN Orders ON Book.bookid = Orders.bookid GROUP BY Book.publisher ORDER BY total DESC;','DISTINCT 집계와 SUM을 함께 씁니다.'],
+    ['10단계 최종 종합','96. 할인액 조건 종합','할인액이 1000원 이상인 주문의 고객명, 도서명, 할인액을 할인액 내림차순으로 조회하세요.','','SELECT Customer.name, Book.bookname, Book.price - Orders.saleprice AS discount FROM Customer JOIN Orders ON Customer.custid = Orders.custid JOIN Book ON Orders.bookid = Book.bookid WHERE Book.price - Orders.saleprice >= 1000 ORDER BY discount DESC;','계산식, WHERE, ORDER BY를 함께 사용합니다.'],
+    ['10단계 최종 종합','97. 고객별 평균 비교','고객별 평균 주문금액이 전체 평균 주문금액 이상인 고객명과 평균 주문금액을 조회하세요.','','SELECT Customer.name, AVG(Orders.saleprice) AS avg_sale FROM Customer JOIN Orders ON Customer.custid = Orders.custid GROUP BY Customer.custid, Customer.name HAVING AVG(Orders.saleprice) >= (SELECT AVG(saleprice) FROM Orders);','그룹 평균과 전체 평균을 비교합니다.'],
+    ['10단계 최종 종합','98. 어려운 종합 1','주문 없는 도서도 포함해 도서명, 출판사, 주문 수, 총 판매금액을 조회하고 주문 수 0개인 도서도 보이게 하세요.','','SELECT Book.bookname, Book.publisher, COUNT(Orders.orderid) AS order_count, SUM(Orders.saleprice) AS total FROM Book LEFT OUTER JOIN Orders ON Book.bookid = Orders.bookid GROUP BY Book.bookid, Book.bookname, Book.publisher ORDER BY order_count DESC;','단순 SELECT가 아니라 OUTER JOIN과 집계를 함께 씁니다.'],
+    ['10단계 최종 종합','99. 어려운 종합 2','고객별 주문 수, 총액, 평균액을 구하되 주문 수가 2개 이상인 고객만 총액 내림차순으로 조회하세요.','','SELECT Customer.name, COUNT(*) AS order_count, SUM(Orders.saleprice) AS total, AVG(Orders.saleprice) AS avg_sale FROM Customer JOIN Orders ON Customer.custid = Orders.custid GROUP BY Customer.custid, Customer.name HAVING COUNT(*) >= 2 ORDER BY total DESC;','JOIN, COUNT, SUM, AVG, HAVING, ORDER BY를 모두 사용합니다.'],
+    ['10단계 최종 종합','100. 최종 어려운 종합','출판사별 총 판매금액이 전체 주문 평균 판매가격보다 큰 출판사와 총액을 조회하고 총액 내림차순 정렬하세요.','','SELECT Book.publisher, SUM(Orders.saleprice) AS total FROM Book JOIN Orders ON Book.bookid = Orders.bookid GROUP BY Book.publisher HAVING SUM(Orders.saleprice) > (SELECT AVG(saleprice) FROM Orders) ORDER BY total DESC;','마지막 문제는 JOIN, GROUP BY, HAVING, 서브쿼리, ORDER BY를 결합합니다.']
   ].forEach(x=>push(...x));
 }
 
@@ -240,8 +240,8 @@ function render(){
   $('feedback').className='feedback'; $('feedback').textContent='';
   $('hintBox').className='hint hidden'; $('hintBox').textContent=q[5];
   $('answerBox').className='answer hidden'; $('answerBox').textContent=getExplanation(q);
-  $('prevBtn').disabled = current===sectionStart;
-  $('nextBtn').disabled = current===sectionEnd;
+  $('prevBtn').disabled = current===0;
+  $('nextBtn').disabled = current===questions.length-1;
   updateProgress(); localStorage.setItem('mysqlQuizCurrent', current);
 }
 function updateProgress(){
@@ -269,14 +269,35 @@ $('answerInput').addEventListener('keydown', e=>{
 $('hintBtn').onclick=()=>$('hintBox').classList.toggle('hidden');
 $('showBtn').onclick=()=>$('answerBox').classList.toggle('hidden');
 $('nextBtn').onclick=()=>{
-  const sectionEnd = Math.min(Math.floor(current / 10) * 10 + 9, questions.length - 1);
-  if(current<sectionEnd){current++;render();}
+  if(current<questions.length-1){current++;render();}
 };
 $('prevBtn').onclick=()=>{
-  const sectionStart = Math.floor(current / 10) * 10;
-  if(current>sectionStart){current--;render();}
+  if(current>0){current--;render();}
 };
 document.querySelectorAll('.level[data-jump]').forEach(b=>b.onclick=()=>{current=Number(b.dataset.jump);render();});
+function jumpToQuestion(){
+  const input = $('jumpInput');
+  const n = Number(input.value);
+  if(!Number.isInteger(n) || n < 1 || n > questions.length){
+    alert(`1~${questions.length} 사이의 문제 번호만 입력하세요.`);
+    input.value='';
+    input.focus();
+    return;
+  }
+  current = n - 1;
+  render();
+}
+$('jumpBtn').onclick=jumpToQuestion;
+$('jumpInput').addEventListener('keydown', e=>{
+  if(e.key==='Enter'){
+    e.preventDefault();
+    jumpToQuestion();
+  }
+});
+$('jumpInput').addEventListener('input', e=>{
+  const n = Number(e.target.value);
+  if(e.target.value && (n < 1 || n > questions.length)) e.target.value = String(Math.min(Math.max(n || 1, 1), questions.length));
+});
 $('resetBtn').onclick=()=>{if(confirm('진도와 입력 답안을 모두 지울까요?')){localStorage.removeItem('mysqlQuizCurrent');localStorage.removeItem('mysqlQuizAnswers');localStorage.removeItem('mysqlQuizSolved');location.reload();}};
 function showQuiz(){ $('quizView').classList.remove('hidden'); $('conceptView').classList.add('hidden'); }
 function showConcept(){ $('conceptView').classList.remove('hidden'); $('quizView').classList.add('hidden'); window.scrollTo({top:0, behavior:'smooth'}); }
