@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Madang MySQL 100문제 연습 사이트</title>
+  <title>Madang MySQL 10문제 단계별 연습 사이트</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header class="topbar">
     <div>
-      <h1>Madang MySQL 기본문법 100문제</h1>
-      <p>이미지의 Book, Orders, Customer 테이블을 기준으로 100문제를 직접 입력하며 연습합니다.</p>
+      <h1>Madang MySQL 기본문법 단계별 40문제</h1>
+      <p>10문제씩 난이도가 올라가며, 같은 형식만 반복하지 않고 빈칸 → 결과 해석 → SQL 작성 → 조인 활용으로 연습합니다.</p>
     </div>
     <div class="header-actions">
       <button id="quizViewBtn" class="ghost">문제 풀기</button>
@@ -25,18 +25,18 @@
       <div class="card">
         <h2>진도</h2>
         <div class="progress-wrap"><div id="progressBar"></div></div>
-        <p id="progressText">0 / 100</p>
+        <p id="progressText">0 / 40</p>
       </div>
       <div class="card">
         <h2>유형 / 난이도 이동</h2>
-        <button class="level" data-jump="0">1. 빈칸형 기초 100문제</button>
-        <button class="level" data-jump="100">2. 코드 보고 결과 쓰기 100문제</button>
-        <button class="level" data-jump="200">3. SQL 구문 작성 100문제</button>
-        <button class="level" data-jump="300">4. 조인/종합 SQL 작성 100문제</button>
+        <button class="level" data-jump="0">1. 기본 빈칸 10문제</button>
+        <button class="level" data-jump="10">2. 결과 해석 10문제</button>
+        <button class="level" data-jump="20">3. SQL 작성 10문제</button>
+        <button class="level" data-jump="30">4. 조인/종합 활용 10문제</button>
       </div>
       <div class="card small">
         <h2>문제 유형</h2>
-        <p>① 빈칸형 100문제<br>② 코드 보고 실행결과 쓰기 100문제<br>③ SQL 구문 작성 100문제<br>④ 조인/종합 SQL 작성 100문제</p>
+        <p>① 빈칸형 10문제<br>② 실행결과 해석 10문제<br>③ SQL 구문 작성 10문제<br>④ 조인/종합 활용 10문제</p>
         <button id="sideConceptBtn" class="level">개념 보기로 이동</button>
       </div>
     </aside>
@@ -54,7 +54,7 @@
 
     <section class="quiz-card">
       <div class="meta">
-        <span id="numBadge">1 / 100</span>
+        <span id="numBadge">1 / 10</span>
         <span id="levelBadge">기초</span>
       </div>
       <h2 id="questionTitle" class="hidden"></h2>
