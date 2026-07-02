@@ -287,7 +287,21 @@ function closeSchemaPanel(){
   $('schemaPanel').classList.add('hidden');
 }
 function normalize(s){return s.toLowerCase().replace(/;\s*$/,'').replace(/\s+/g,' ').trim();}
-function compactAnswer(s){return s.toLowerCase().replace(/;/g,'').replace(/\s+/g,'').trim();}
+function compactAnswer(s){return s.toLowerCase().replace(/[，、]/g,',').replace(/;/g,'').replace(/\s+/g,'').trim();}
+function listAnswer(s){
+  return s.toLowerCase()
+    .replace(/[，、]/g,',')
+    .replace(/;/g,'')
+    .split(',')
+    .map(x=>x.replace(/\s+/g,'').trim())
+    .filter(Boolean);
+}
+function sameListAnswer(a,b){
+  const aa=listAnswer(a), bb=listAnswer(b);
+  if(aa.length<=1 || bb.length<=1) return false;
+  if(aa.length!==bb.length) return false;
+  return aa.every((v,i)=>v===bb[i]) || aa.slice().sort().every((v,i)=>v===bb.slice().sort()[i]);
+}
 function getExplanation(q){
   const type=q[0], ans=q[4];
   if(type.includes('실행결과') || type.includes('빈칸')) return `정답: ${ans}`;
@@ -326,8 +340,8 @@ function checkAnswer(){
   const ansCompact=compactAnswer(q[4]);
   const isResultType = q[0].includes('실행결과');
   const ok = isResultType
-    ? userCompact===ansCompact
-    : userCompact===ansCompact || userCompact.includes(ansCompact);
+    ? userCompact===ansCompact || sameListAnswer($('answerInput').value, q[4])
+    : userCompact===ansCompact || userCompact.includes(ansCompact) || sameListAnswer($('answerInput').value, q[4]);
   $('feedback').className='feedback '+(ok?'good':'bad');
   $('feedback').textContent=ok?'정답입니다!':'아직 달라요. 다시풀기를 누른 뒤 한 번 더 풀어보세요.';
   $('answerBox').classList.add('hidden');
