@@ -460,7 +460,21 @@ function resultHeader(sql){
   if(cols.length === 1) return `[${cols[0]}]`;
   return `[${cols.join('] [')}]`;
 }
-function blankSql(sql){ return (sql || '').replace(/____/g, '(  )'); }
+function blankSql(sql){
+  const s = (sql || '').replace(/____/g, '(  )').trim();
+  const low = s.toLowerCase();
+  if(low.startsWith('select')) return s;
+  if(low.startsWith('from')) return `SELECT *\n${s}`;
+  if(low.startsWith('where')) return `SELECT *\nFROM Customer JOIN Orders ON Customer.custid = Orders.custid\nJOIN Book ON Orders.bookid = Book.bookid\n${s}`;
+  if(low.startsWith('group by')) return `SELECT Customer.name, SUM(Orders.saleprice) AS total\nFROM Customer JOIN Orders ON Customer.custid = Orders.custid\nGROUP BY Customer.custid, Customer.name\n${s}`;
+  if(low.startsWith('having')) return `SELECT Customer.name, SUM(Orders.saleprice) AS total\nFROM Customer JOIN Orders ON Customer.custid = Orders.custid\nGROUP BY Customer.custid, Customer.name\n${s}`;
+  if(low.startsWith('order by')) return `SELECT Customer.name, SUM(Orders.saleprice) AS total\nFROM Customer JOIN Orders ON Customer.custid = Orders.custid\nGROUP BY Customer.custid, Customer.name\n${s}`;
+  if(low.startsWith('publisher in')) return `SELECT *\nFROM Book\nWHERE ${s}`;
+  if(low.startsWith('name like')) return `SELECT *\nFROM Customer\nWHERE ${s}`;
+  if(low.startsWith('count(') || low.startsWith('sum(') || low.startsWith('avg(') || low.startsWith('book.price')) return `SELECT ${s}\nFROM Customer JOIN Orders ON Customer.custid = Orders.custid\nJOIN Book ON Orders.bookid = Book.bookid`;
+  if(low.startsWith('on ')) return `SELECT *\nFROM Customer JOIN Orders\n${s}`;
+  return s;
+}
 function formatQuestionText(q){
   const type=q[0], text=q[2];
   if(type.includes('실행결과')) return `<SQL 구문>의 <실행 결과>를 작성하시오.\n(단, 아래 형식에 맞게 작성하시오.)`;
